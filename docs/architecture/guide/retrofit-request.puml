@@ -1,0 +1,42 @@
+' Guide - one Retrofit request, end to end (explanatory diagram for the root README)
+' Version 1.2 - 2026-10-20
+' Example: opening Charizard's detail page. OkHttp and the Gson converter are what Retrofit uses
+' under the hood; NetworkModule builds Retrofit with both. Hilt creates the objects once (@Singleton)
+' and injects PokemonApi into PokemonRepository's constructor.
+@startuml retrofit-request
+!include ../style.puml
+
+title Retrofit request - GET pokemon/charizard
+autonumber
+
+participant "Hilt\n(NetworkModule)" as Hilt
+participant PokemonDetailViewModel
+participant PokemonRepository
+participant "PokemonApi\n(Retrofit proxy)" as PokemonApi
+participant "OkHttp" as OkHttp
+participant "Gson converter" as Gson
+participant PokeAPI <<external>>
+
+== Once, when Hilt first needs PokemonRepository ==
+Hilt -> Hilt : OkHttpClient, then Retrofit\n(baseUrl https://pokeapi.co/api/v2/, Gson)
+Hilt -> PokemonApi : retrofit.create(PokemonApi::class.java)
+Hilt -> PokemonRepository : inject PokemonApi, CaughtPokemonDao
+
+== Every request ==
+PokemonDetailViewModel -> PokemonRepository : getPokemon("charizard")
+PokemonRepository -> PokemonApi : getPokemon("charizard") (suspend)
+PokemonApi -> OkHttp : GET /pokemon/charizard
+OkHttp -> PokeAPI : HTTPS request
+PokeAPI --> OkHttp : 200 OK, JSON
+OkHttp --> PokemonApi : response body
+PokemonApi -> Gson : JSON to Kotlin
+Gson --> PokemonApi : PokemonDto(id, name, types, stats, sprites, ...)
+PokemonApi --> PokemonRepository : PokemonDto (coroutine resumes on main)
+PokemonRepository -> PokemonRepository : PokemonDto.toDomain() (data.mapper)
+PokemonRepository --> PokemonDetailViewModel : Pokemon (domain model)
+
+note over PokemonDetailViewModel, PokemonApi
+  No network or HTTP error: the suspend call throws,
+  PokemonDetailViewModel catches it and shows "No Pokemon found!".
+end note
+@enduml

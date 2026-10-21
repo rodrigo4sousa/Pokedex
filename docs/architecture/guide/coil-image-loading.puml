@@ -1,0 +1,30 @@
+' Guide - how a sprite is loaded with Coil (explanatory diagram for the root README)
+' Version 1.0 - 2026-10-19 - reflects the current working tree
+' The app uses Coil's default singleton ImageLoader (no custom configuration in the code); the cache steps are
+' Coil 3's default behaviour. Network access comes from coil-network-okhttp.
+' Sprite URLs: PokemonSummary.spriteUrl (list cards, evolution stages) is built from the Pokédex number by spriteUrlFor()
+' (raw.githubusercontent.com/PokeAPI/sprites); the detail screen uses the URLs inside the PokeAPI response.
+@startuml coil-image-loading
+!include ../style.puml
+
+title Coil - loading a Pokémon sprite
+
+start
+:Composable calls **AsyncImage**(model = sprite URL);
+:Coil's default ImageLoader builds the request;
+if (In memory cache?) then (yes)
+else (no)
+  if (In disk cache?) then (yes)
+  else (no)
+    :Download with OkHttp
+    (PokeAPI Sprites, GitHub raw);
+    :Save to disk cache;
+  endif
+  :Decode into a bitmap;
+  :Keep it in memory cache;
+endif
+:Compose draws it with ContentScale.Fit
+(FilterQuality.None on the detail screen
+keeps the pixel art sharp);
+stop
+@enduml

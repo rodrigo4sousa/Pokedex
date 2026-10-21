@@ -1,0 +1,34 @@
+' Guide - MVVM layers (explanatory diagram for the root README; not a C4 level or 4+1 view)
+' Version 1.1 - 2026-10-20
+' Same element names as the C4 and 4+1 diagrams. Each layer box lists the real classes in it.
+' PokemonApi returns DTOs and CaughtPokemonDao returns entities; the repository converts both with the
+' mappers in data.mapper, so the ViewModels only see domain models (Pokemon, PokemonSummary, ...).
+@startuml mvvm
+!include ../style.puml
+
+title MVVM in the Pokédex app
+left to right direction
+
+rectangle "**View**\nJetpack Compose\n\nHomeScreen\nPokedexScreen\nPokemonDetailScreen" as View
+rectangle "**ViewModel**\nLifecycle ViewModel + LiveData\n\nHomeViewModel\nPokedexViewModel\nPokemonDetailViewModel" as ViewModel
+rectangle "**Model**\ndata layer\n\nPokemonRepository\n+ mappers (DTO, entity → domain)" as Repository
+component "PokemonApi\n(Retrofit)" as PokemonApi
+component "CaughtPokemonDao\n(Room)" as Dao
+component "PokeAPI" <<external>> as PokeAPI
+database "Local Database\n(pokedex.db)" as LocalDb
+
+View --> ViewModel : user events\n(onQueryChange, toggleType,\ntoggleCaught)
+View <.. ViewModel : UI state\n(LiveData, observeAsState)
+ViewModel --> Repository : suspend calls\n(viewModelScope)
+ViewModel <.. Repository : domain models,\nRoom LiveData
+Repository --> PokemonApi : fetch (DTOs)
+Repository --> Dao : read / write (entities)
+PokemonApi --> PokeAPI : HTTPS/JSON
+Dao --> LocalDb : SQLite
+
+note bottom of ViewModel
+  Hilt creates each ViewModel
+  (hiltViewModel()) and injects
+  PokemonRepository.
+end note
+@enduml
