@@ -1,19 +1,18 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample data extraction rules file; uncomment and customize as necessary.
-   See https://developer.android.com/about/versions/12/backup-restore#xml-changes
-   for details.
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   Backup and device-transfer rules for Android 12+ (android:dataExtractionRules).
+   Only the caught Pokémon database is kept, so caught progress survives a phone change.
+   pokedex.db-wal is included because Room uses write-ahead logging: recent catches can still
+   be in the WAL file. Everything else (Coil's image cache, PokeAPI data) is re-downloaded.
+   See https://developer.android.com/about/versions/12/backup-restore
 -->
 <data-extraction-rules>
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <include domain="database" path="pokedex.db" />
+        <include domain="database" path="pokedex.db-wal" />
     </cloud-backup>
-    <!--
     <device-transfer>
-        <include .../>
-        <exclude .../>
+        <include domain="database" path="pokedex.db" />
+        <include domain="database" path="pokedex.db-wal" />
     </device-transfer>
-    -->
 </data-extraction-rules>
