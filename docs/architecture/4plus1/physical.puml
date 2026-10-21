@@ -1,0 +1,37 @@
+' 4+1 Physical view - UML deployment diagram
+' Version 1.2 - 2026-10-20 - reflects the current working tree
+' For: whoever installs, supports or releases the app. Documents the decision to run everything on the
+' device (no backend): the only remote dependencies are public HTTPS hosts, and the only persistent data
+' is a local SQLite file inside the app sandbox.
+' Only what exists today. Planned Play Store publication and CI: see c4/04-deployment-planned.puml.
+' Same nodes and names as c4/04-deployment.puml.
+' Not drawn: Android Auto Backup / device transfer. Explicit rules (backup_rules.xml, data_extraction_rules.xml)
+' keep only pokedex.db and its WAL file - noted in the README.
+' Sprites (PokeAPI/sprites) and cries (PokeAPI/cries) are two GitHub repositories on the same host.
+@startuml physical
+!include ../style.puml
+
+title Physical view - current deployment
+left to right direction
+
+node "Android device\n(Android 12+, minSdk 31)" as device {
+    node "App sandbox\n(com.example.pokedex)" as sandbox {
+        artifact "Android App\n(APK)" as apk
+        database "Local Database\n(pokedex.db, SQLite)" as db
+    }
+}
+
+node "pokeapi.co" as pokeApiHost {
+    component "PokeAPI" <<external>> as pokeApi
+}
+
+node "raw.githubusercontent.com" as rawHost {
+    component "PokeAPI Sprites\n(GitHub raw)" <<external>> as sprites
+    component "PokeAPI Cries\n(GitHub raw)" <<external>> as cries
+}
+
+apk --> db : Stores caught Pokémon\n[Room DAO]
+apk --> pokeApi : Reads Pokémon data\n[Retrofit, HTTPS/JSON]
+apk --> sprites : Loads sprite images\n[Coil, HTTPS]
+apk --> cries : Streams Pokémon cries\n[MediaPlayer, HTTPS]
+@enduml

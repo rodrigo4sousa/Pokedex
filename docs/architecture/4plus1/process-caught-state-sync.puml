@@ -1,0 +1,34 @@
+' 4+1 Process view - Caught state kept in sync across screens
+' Version 1.0 - 2026-10-19 - reflects the current working tree
+' For: developers adding screens that show or change caught state. Documents the decision to make
+' Room the single source of truth: no screen pushes updates to another; every ViewModel observes
+' Room LiveData and gets the new data after each insert/delete.
+' LiveData only runs its query while observed: a tab in the back stack refreshes when it becomes active again.
+' The example starts from PokemonDetailScreen; HomeScreen and PokedexScreen use the same path.
+@startuml process-caught-state-sync
+!include ../style.puml
+
+title Process view - caught state sync
+autonumber
+
+box "Main thread"
+    participant PokemonDetailScreen
+    participant PokemonDetailViewModel
+    participant PokemonRepository
+    participant HomeViewModel
+    participant PokedexViewModel
+end box
+box "Room executor"
+    participant CaughtPokemonDao
+end box
+database "Local Database" as LocalDb
+
+PokemonDetailScreen -> PokemonDetailViewModel : toggleCaught()
+PokemonDetailViewModel -> PokemonRepository : catchPokemon(name, id)
+PokemonRepository -> CaughtPokemonDao : insert(entity) (suspend)
+CaughtPokemonDao -> LocalDb : INSERT OR IGNORE
+LocalDb --> CaughtPokemonDao : table invalidated
+CaughtPokemonDao --> PokemonDetailViewModel : isCaught = true (LiveData)
+CaughtPokemonDao --> HomeViewModel : getAll() list (LiveData, if observed)
+CaughtPokemonDao --> PokedexViewModel : getAll() list (LiveData, if observed)
+@enduml

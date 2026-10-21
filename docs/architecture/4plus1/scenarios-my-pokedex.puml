@@ -1,0 +1,34 @@
+' 4+1 Scenarios (+1) - Review My Pokédex (US05)
+' Version 1.1 - 2026-10-20 - reflects the current working tree
+' Shows how the Logical view (PokedexViewModel, PokemonRepository) supports the caught list: the list comes
+' only from Room (works offline); PokeAPI is only used for the "Caught x / y" total, which is optional.
+@startuml scenarios-my-pokedex
+!include ../style.puml
+
+title Scenario - review My Pokédex
+autonumber
+
+actor User
+participant PokedexScreen
+participant PokedexViewModel
+participant PokemonRepository
+database "Local Database" as LocalDb
+participant PokeAPI <<external>>
+
+User -> PokedexScreen : opens the Pokédex tab
+PokedexScreen -> PokedexViewModel : observes caughtPokemons, total
+PokedexViewModel -> PokemonRepository : getCaught()
+PokemonRepository -> LocalDb : SELECT caught_pokemon
+LocalDb --> PokedexViewModel : caught list (Room LiveData)
+PokedexViewModel -> PokemonRepository : getSpeciesCount()
+PokemonRepository -> PokeAPI : GET pokemon-species?limit=1
+alt PokeAPI answers
+    PokeAPI --> PokedexViewModel : count
+    PokedexViewModel --> PokedexScreen : "Caught x / y" + grid
+else unreachable
+    PokedexViewModel --> PokedexScreen : "Caught x" + grid
+end
+User -> PokedexScreen : sorts by Date caught
+PokedexScreen -> PokedexViewModel : onSortChange(DateCaught)
+PokedexViewModel --> PokedexScreen : sorted by caughtAt, newest first
+@enduml

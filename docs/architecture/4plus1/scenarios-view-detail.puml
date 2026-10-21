@@ -1,0 +1,46 @@
+' 4+1 Scenarios (+1) - View Pokémon detail with evolutions and type matchups (US04)
+' Version 1.1 - 2026-10-20 - reflects the current working tree
+' Shows how the Logical view (PokemonDetailViewModel, PokemonRepository) and the Process view (parallel
+' loads after the main data) support inspecting a Pokémon. Concurrency detail: process-open-pokemon-detail.puml.
+' C4 equivalent: c4/dynamic-open-pokemon-detail.puml.
+' Sprite and cry URLs come in the PokeAPI response; sprites are on PokeAPI/sprites and cries on PokeAPI/cries (GitHub raw).
+@startuml scenarios-view-detail
+!include ../style.puml
+
+title Scenario - view Pokémon detail
+autonumber
+
+actor User
+participant PokemonDetailScreen
+participant PokemonDetailViewModel
+participant PokemonRepository
+participant PokeAPI <<external>>
+database "Local Database" as LocalDb
+participant "PokeAPI Sprites\n(GitHub raw)" as Sprites <<external>>
+participant "PokeAPI Cries\n(GitHub raw)" as Cries <<external>>
+
+User -> PokemonDetailScreen : taps a Pokémon in any list
+PokemonDetailScreen -> PokemonDetailViewModel : observes pokemon
+PokemonDetailViewModel -> PokemonRepository : getPokemon(name)
+PokemonRepository -> PokeAPI : GET pokemon/{name}
+PokemonRepository --> PokemonDetailViewModel : Pokemon
+PokemonDetailViewModel --> PokemonDetailScreen : stats, sprites, abilities
+par
+    PokemonDetailViewModel -> PokemonRepository : isCaught(name)
+    PokemonRepository -> LocalDb : SELECT EXISTS
+else
+    PokemonDetailViewModel -> PokemonRepository : getEvolutionChain(species)
+    PokemonRepository -> PokeAPI : GET species, then chain
+else
+    PokemonDetailViewModel -> PokemonRepository : getTypeEffectiveness(types)
+    PokemonRepository -> PokeAPI : GET type/{t} per type
+end
+PokemonDetailViewModel --> PokemonDetailScreen : star, evolutions, weaknesses
+PokemonDetailScreen -> Sprites : loads sprites and evolution sprites (Coil)
+
+User -> PokemonDetailScreen : toggles front/back, shiny, female
+User -> PokemonDetailScreen : plays the cry
+PokemonDetailScreen -> Cries : streams the cry .ogg (MediaPlayer)
+User -> PokemonDetailScreen : taps an evolution
+PokemonDetailScreen -> PokemonDetailScreen : opens that species (same scenario)
+@enduml

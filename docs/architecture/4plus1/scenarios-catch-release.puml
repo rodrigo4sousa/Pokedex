@@ -1,0 +1,31 @@
+' 4+1 Scenarios (+1) - Catch / release a Pokémon (US01, US02)
+' Version 1.0 - 2026-10-19 - reflects the current working tree
+' Shows how the Logical view (HomeViewModel, PokemonRepository, CaughtPokemonEntity) and the Process view
+' (Room as single source of truth, LiveData) support keeping the user's Pokédex up to date.
+' Started here from HomeScreen; PokedexScreen (release only) and PokemonDetailScreen follow the same path.
+' C4 equivalent: c4/dynamic-catch-release-pokemon.puml. Process detail: process-caught-state-sync.puml.
+@startuml scenarios-catch-release
+!include ../style.puml
+
+title Scenario - catch / release a Pokémon
+autonumber
+
+actor User
+participant HomeScreen
+participant HomeViewModel
+participant PokemonRepository
+database "Local Database" as LocalDb
+
+User -> HomeScreen : taps the star on a card
+HomeScreen -> HomeViewModel : toggleCaught(pokemon)
+alt not caught yet
+    HomeViewModel -> PokemonRepository : catchPokemon(name, id)
+    PokemonRepository -> LocalDb : insert caught_pokemon row
+else already caught
+    HomeViewModel -> PokemonRepository : releasePokemon(name)
+    PokemonRepository -> LocalDb : delete caught_pokemon row
+end
+LocalDb --> HomeViewModel : caught list (Room LiveData)
+HomeViewModel --> HomeScreen : caughtNames
+HomeScreen --> User : star filled / empty
+@enduml

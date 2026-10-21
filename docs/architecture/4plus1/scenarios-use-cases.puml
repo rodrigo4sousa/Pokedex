@@ -1,0 +1,33 @@
+' 4+1 Scenarios (+1) - use cases
+' Version 1.1 - 2026-10-20 - reflects the current working tree
+' For: everyone (product, developers, reviewers). Documents which use cases drive the architecture and
+' ties them to the user stories in docs/specification.md. Each use case has a sequence in scenarios-<use-case>.puml.
+@startuml scenarios-use-cases
+!include ../style.puml
+
+title Scenarios - use cases
+left to right direction
+
+actor User
+actor "PokeAPI" <<external>> as PokeAPI
+
+rectangle "Pokédex App" {
+    usecase "Browse and filter Pokémon\n(US03)" as browse
+    usecase "View Pokémon detail\n(US04)" as detail
+    usecase "Review My Pokédex\n(US05)" as myDex
+    usecase "Catch / release a Pokémon\n(US01, US02)" as catch
+}
+
+User --> browse
+User --> detail
+User --> myDex
+User --> catch
+
+catch ..> browse : <<extend>>
+catch ..> detail : <<extend>>
+catch ..> myDex : <<extend>>
+
+browse --> PokeAPI
+detail --> PokeAPI
+myDex --> PokeAPI
+@enduml

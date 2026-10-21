@@ -1,0 +1,56 @@
+' 4+1 Process view - Open Pokémon detail (concurrency)
+' Version 1.0 - 2026-10-19 - reflects the current working tree
+' For: developers working on loading, threading or error handling. Documents the decision to run
+' everything from viewModelScope (main dispatcher) with suspend Retrofit calls and Room LiveData,
+' with no explicit dispatchers, and to load the extra sections in parallel after the main data.
+' Threads come from the libraries: viewModelScope = Dispatchers.Main.immediate; Retrofit suspend calls
+' run on OkHttp's threads and resume on main; Room LiveData queries run on Room's executor and post to main.
+' If an extra section (evolution chain, type matchups) fails, it is caught and stays hidden.
+' Same flow as c4/dynamic-open-pokemon-detail.puml.
+@startuml process-open-pokemon-detail
+!include ../style.puml
+
+title Process view - open Pokémon detail
+autonumber
+
+box "Main thread"
+    participant PokemonDetailScreen
+    participant PokemonDetailViewModel
+    participant PokemonRepository
+end box
+box "OkHttp threads"
+    participant PokemonApi
+end box
+box "Room executor"
+    participant CaughtPokemonDao
+end box
+participant PokeAPI <<external>>
+database "Local Database" as LocalDb
+
+PokemonDetailScreen -> PokemonDetailViewModel : create (hiltViewModel)
+PokemonDetailViewModel -> PokemonRepository : getPokemon(name)
+PokemonRepository -> PokemonApi : getPokemon(name)
+PokemonApi -> PokeAPI : GET pokemon/{name}
+PokeAPI --> PokemonApi : JSON
+PokemonApi --> PokemonRepository : PokemonDto (resumes on main)
+PokemonRepository --> PokemonDetailViewModel : Pokemon (mapped from PokemonDto)
+PokemonDetailViewModel --> PokemonDetailScreen : pokemon (LiveData)
+
+par isCaught (switchMap)
+    PokemonDetailViewModel -> PokemonRepository : isCaught(name)
+    PokemonRepository -> CaughtPokemonDao : isCaught(name)
+    CaughtPokemonDao -> LocalDb : SELECT EXISTS
+    CaughtPokemonDao --> PokemonDetailViewModel : Boolean (LiveData, posted to main)
+else launch: evolution chain
+    PokemonDetailViewModel -> PokemonRepository : getEvolutionChain(species)
+    PokemonRepository -> PokemonApi : getPokemonSpecies(), getEvolutionChain(url)
+    PokemonApi -> PokeAPI : GET pokemon-species/{name}, then chain
+    PokemonRepository --> PokemonDetailViewModel : EvolutionStage
+else launch: type matchups
+    PokemonDetailViewModel -> PokemonRepository : getTypeEffectiveness(types)
+    PokemonRepository -> PokemonApi : getType(t), one async per type
+    PokemonApi -> PokeAPI : GET type/{t}
+    PokemonRepository --> PokemonDetailViewModel : multipliers map
+end
+PokemonDetailViewModel --> PokemonDetailScreen : isCaught, evolutionChain, typeEffectiveness (LiveData)
+@enduml

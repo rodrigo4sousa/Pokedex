@@ -1,0 +1,42 @@
+' 4+1 Scenarios (+1) - Browse and filter Pokémon (US03)
+' Version 1.0 - 2026-10-19 - reflects the current working tree
+' Shows how the Logical view (HomeViewModel, PokemonRepository) and the Process view (main-thread
+' coroutines, Retrofit) support listing all Pokémon: one network call for the whole list, then search,
+' sort and filter run in memory; only the type filter needs another call (cached per type).
+' C4 equivalent: c4/dynamic-browse-and-filter.puml.
+@startuml scenarios-browse-and-filter
+!include ../style.puml
+
+title Scenario - browse and filter Pokémon
+autonumber
+
+actor User
+participant HomeScreen
+participant HomeViewModel
+participant PokemonRepository
+participant PokeAPI <<external>>
+participant "PokeAPI Sprites\n(GitHub raw)" as Sprites <<external>>
+
+User -> HomeScreen : opens the app
+HomeScreen -> HomeViewModel : observes pokemons
+HomeViewModel -> PokemonRepository : getAllPokemons()
+PokemonRepository -> PokeAPI : GET pokemon?limit=100000
+PokeAPI --> PokemonRepository : every name + URL
+PokemonRepository --> HomeViewModel : List<PokemonSummary>
+HomeViewModel --> HomeScreen : pokemons (LiveData)
+HomeScreen -> Sprites : loads visible sprites (Coil)
+
+User -> HomeScreen : types a name / picks a sort
+HomeScreen -> HomeViewModel : onQueryChange() / onSortChange()
+HomeViewModel -> HomeViewModel : filters and sorts in memory
+HomeViewModel --> HomeScreen : pokemons
+
+User -> HomeScreen : picks a type in the filter panel
+HomeScreen -> HomeViewModel : toggleType(type)
+HomeViewModel -> PokemonRepository : getPokemonNamesOfType(type)
+opt type not cached yet
+    PokemonRepository -> PokeAPI : GET type/{type}
+end
+PokemonRepository --> HomeViewModel : names of that type
+HomeViewModel --> HomeScreen : filtered pokemons (types combine with OR)
+@enduml

@@ -1,0 +1,111 @@
+' 4+1 Logical view - UML class diagram
+' Version 1.2 - 2026-10-20
+' For: developers changing features. Documents the decision to use MVVM with one ViewModel per
+' screen and a single PokemonRepository, with no use-case layer, and to keep PokeAPI's and Room's shapes
+' out of the UI: the repository takes DTOs (data.remote.dto) and entities (data.local) and returns
+' domain models (domain.model), converted by the mappers in data.mapper.
+' Elements are grouped by the layer they work in (same names as the C4 diagrams), not by package.
+' Members shown: public LiveData and actions only.
+' Not drawn: the DTO classes (PokemonDto, ChainLinkDto, TypeDto, ...) and the mappers - see
+' c4/03-components-android-app-data.puml; Ability, Stat, Sprites, EvolutionCondition are shown as attribute types.
+@startuml logical
+!include ../style.puml
+
+title Logical view - classes
+
+package "UI layer" {
+    class HomeViewModel {
+        +pokemons: LiveData
+        +caughtNames: LiveData
+        +query, sort, selectedTypes: LiveData
+        +onQueryChange()
+        +onSortChange()
+        +toggleType() / clearTypes()
+        +toggleCaught()
+    }
+    class PokedexViewModel {
+        +caughtPokemons: LiveData
+        +caughtCount, total: LiveData
+        +query, sort, selectedTypes: LiveData
+        +onQueryChange()
+        +onSortChange()
+        +toggleType() / clearTypes()
+        +release()
+    }
+    class PokemonDetailViewModel {
+        +pokemon: LiveData
+        +isCaught: LiveData
+        +evolutionChain: LiveData
+        +typeEffectiveness: LiveData
+        +loadPokemon()
+        +toggleCaught()
+    }
+    enum PokemonSort {
+        Number
+        Name
+        DateCaught
+    }
+}
+
+package "Data layer" {
+    class PokemonRepository <<Singleton>> {
+        -typeMembers: Map (in-memory cache)
+        +getAllPokemons(): List<PokemonSummary>
+        +getPokemon(name): Pokemon
+        +getEvolutionChain(species): EvolutionStage?
+        +getTypeEffectiveness(types): Map
+        +getPokemonNamesOfType(type): Set
+        +getSpeciesCount(): Int
+        +getCaught(): LiveData<List<CaughtPokemon>>
+        +isCaught(name) / catchPokemon() / releasePokemon()
+    }
+    class CaughtPokemonEntity <<Room entity>> {
+        +name: String {PK}
+        +pokemonId: Int
+        +caughtAt: Long
+    }
+}
+
+package "Domain model" {
+    class PokemonSummary {
+        +id: Int
+        +name: String
+        +spriteUrl: String
+    }
+    class CaughtPokemon {
+        +pokemon: PokemonSummary
+        +caughtAt: Long
+    }
+    class Pokemon {
+        +id: Int
+        +name: String
+        +speciesName: String
+        +height, weight: Int
+        +types: List<String>
+        +abilities: List<Ability>
+        +stats: List<Stat>
+        +sprites: Sprites
+        +cryUrl: String?
+    }
+    class EvolutionStage {
+        +pokemon: PokemonSummary
+        +condition: EvolutionCondition?
+    }
+}
+
+HomeViewModel --> PokemonRepository : uses
+PokedexViewModel --> PokemonRepository : uses
+PokemonDetailViewModel --> PokemonRepository : uses
+HomeViewModel ..> PokemonSort : sorts by
+PokedexViewModel ..> PokemonSort : sorts by
+
+PokemonRepository ..> PokemonSummary : returns
+PokemonRepository ..> CaughtPokemon : returns
+PokemonRepository ..> Pokemon : returns
+PokemonRepository ..> EvolutionStage : returns
+PokemonRepository ..> CaughtPokemonEntity : reads / writes
+
+CaughtPokemon *-- PokemonSummary
+EvolutionStage *-- PokemonSummary
+EvolutionStage "1" *-- "0..*" EvolutionStage : evolvesTo
+@enduml
