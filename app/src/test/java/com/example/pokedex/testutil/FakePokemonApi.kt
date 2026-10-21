@@ -16,7 +16,7 @@ import java.io.IOException
  * GsonConverterFactory uses. Missing fixtures throw like a 404 would.
  *
  * Each call is identified by its REST path ("pokemon/bulbasaur", "type/grass", "pokemon?" for the
- * list); [fail] makes every call whose path starts with a prefix throw.
+ * list); [fail] makes every call whose path starts with a prefix throw, until [recover].
  */
 class FakePokemonApi : PokemonApi {
 
@@ -32,11 +32,17 @@ class FakePokemonApi : PokemonApi {
 
     fun failAll(error: Throwable = IOException("Fake failure")) = fail("", error)
 
+    /** Undoes every [fail], so a retry can succeed. */
+    fun recover() = failures.clear()
+
     override suspend fun getPokemon(name: String): PokemonDto =
         load("pokemon/$name", "pokemon/$name.json")
 
     override suspend fun getPokemonPage(limit: Int, offset: Int): PokemonPageDto =
         load("pokemon?limit=$limit&offset=$offset", "pokemon-list.json")
+
+    override suspend fun getPokemonSpeciesPage(limit: Int, offset: Int): PokemonPageDto =
+        load("pokemon-species?limit=$limit&offset=$offset", "pokemon-species-list.json")
 
     override suspend fun getPokemonSpecies(name: String): PokemonSpeciesDto =
         load("pokemon-species/$name", "pokemon-species/$name.json")

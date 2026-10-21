@@ -7,18 +7,19 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.pokedex.testutil.awaitValue
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Migration harness. There is only schema v1 today, so this proves the setup works: the exported schema
- * (app/schemas, packaged as androidTest assets) builds a v1 database that Room opens with the current
- * entities. When v2 comes: add the Migration, a test that runs it with runMigrationsAndValidate, and
- * commit 2.json (see docs/testing.md).
+ * Migrations against the exported schemas (app/schemas, packaged as androidTest assets): a database
+ * built from an old schema is migrated, validated against the new one, then opened with Room, which
+ * also checks the schema's identity hash against the current entities.
  */
 @RunWith(AndroidJUnit4::class)
 class MigrationTest {
@@ -41,17 +42,25 @@ class MigrationTest {
     }
 
     @Test
-    fun version1FromTheExportedSchemaOpensWithTheCurrentEntities() {
+    fun migration1To2KeepsCaughtPokemonAndAddsTheGameTables() = runTest {
         helper.createDatabase(TEST_DB, 1).use { db ->
             db.execSQL("INSERT INTO caught_pokemon (name, pokemonId, caughtAt) VALUES ('eevee', 133, 100)")
         }
-        helper.runMigrationsAndValidate(TEST_DB, 1, true).close()
 
-        // Room checks the schema's identity hash against the entities when it opens the file.
-        val database = Room.databaseBuilder(context, PokedexDatabase::class.java, TEST_DB).build()
+        helper.runMigrationsAndValidate(TEST_DB, 2, true, MIGRATION_1_2).close()
+
+        val database = Room.databaseBuilder(context, PokedexDatabase::class.java, TEST_DB)
+            .addMigrations(MIGRATION_1_2)
+            .build()
         try {
             val rows = database.caughtPokemonDao().getAll().awaitValue { it.isNotEmpty() }
             assertEquals(listOf(CaughtPokemonEntity(name = "eevee", pokemonId = 133, caughtAt = 100)), rows)
+
+            val gameDao = database.guessGameDao()
+            assertNull(gameDao.getStreak())
+            val round = DailyRoundEntity(20_382, "giratina", 487, "", 3, "Playing")
+            gameDao.saveRound(round)
+            assertEquals(round, gameDao.getRound(20_382))
         } finally {
             database.close()
         }

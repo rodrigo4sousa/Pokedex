@@ -15,6 +15,8 @@ data class Pokemon(
     val abilities: List<Ability>,
     val stats: List<Stat>,
     val sprites: Sprites,
+    /** Official artwork (large, transparent background); missing for some forms. */
+    val artworkUrl: String?,
     /** The newest cry, or the original game's one when there is no newer recording. */
     val cryUrl: String?
 )

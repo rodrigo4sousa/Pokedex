@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.example.pokedex.data.local.CaughtPokemonDao
 import com.example.pokedex.data.local.DatabaseModule
+import com.example.pokedex.data.local.GuessGameDao
 import com.example.pokedex.data.local.PokedexDatabase
 import dagger.Module
 import dagger.Provides
@@ -28,4 +29,8 @@ object TestDatabaseModule {
     @Provides
     fun provideCaughtPokemonDao(database: PokedexDatabase): CaughtPokemonDao =
         database.caughtPokemonDao()
+
+    @Provides
+    fun provideGuessGameDao(database: PokedexDatabase): GuessGameDao =
+        database.guessGameDao()
 }

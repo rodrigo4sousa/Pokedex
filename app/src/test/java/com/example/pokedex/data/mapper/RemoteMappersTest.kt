@@ -82,6 +82,14 @@ class RemoteMappersTest {
     }
 
     @Test
+    fun `the official artwork is read from the other sprites`() {
+        val bulbasaur = fixture<PokemonDto>("pokemon/bulbasaur.json")
+
+        assertEquals("${spriteBase}other/official-artwork/1.png", bulbasaur.toDomain().artworkUrl)
+        assertNull(bulbasaur.copy(sprites = bulbasaur.sprites.copy(other = null)).toDomain().artworkUrl)
+    }
+
+    @Test
     fun `eevee keeps its female sprites`() {
         val sprites = fixture<PokemonDto>("pokemon/eevee.json").toDomain().sprites
 

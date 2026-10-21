@@ -16,9 +16,15 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun providePokedexDatabase(@ApplicationContext context: Context): PokedexDatabase =
-        Room.databaseBuilder(context, PokedexDatabase::class.java, "pokedex.db").build()
+        Room.databaseBuilder(context, PokedexDatabase::class.java, "pokedex.db")
+            .addMigrations(MIGRATION_1_2)
+            .build()
 
     @Provides
     fun provideCaughtPokemonDao(database: PokedexDatabase): CaughtPokemonDao =
         database.caughtPokemonDao()
+
+    @Provides
+    fun provideGuessGameDao(database: PokedexDatabase): GuessGameDao =
+        database.guessGameDao()
 }

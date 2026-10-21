@@ -26,6 +26,14 @@ interface PokemonApi {
     ): PokemonPageDto
 
 
+    // Species only: one entry per Pokédex number, without forms.
+    @GET("pokemon-species")
+    suspend fun getPokemonSpeciesPage(
+        @Query("limit") limit: Int,
+        @Query("offset") offset: Int
+    ): PokemonPageDto
+
+
     @GET("pokemon-species/{name}")
     suspend fun getPokemonSpecies(
         @Path("name") name: String

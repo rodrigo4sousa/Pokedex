@@ -44,7 +44,9 @@ class PokeApiDispatcher : Dispatcher() {
             val parts = route.split('/')
             return when {
                 route == "pokemon" && hasQuery -> "pokemon-list.json"
-                route == "pokemon-species" && hasQuery -> "pokemon-species-count.json"
+                // limit=1 is the species count; any other page is the species list.
+                route == "pokemon-species" && path.endsWith("?limit=1") -> "pokemon-species-count.json"
+                route == "pokemon-species" && hasQuery -> "pokemon-species-list.json"
                 parts.size == 2 && parts[0] in RESOURCES -> "${parts[0]}/${parts[1]}.json"
                 else -> null
             }

@@ -40,6 +40,7 @@ fun PokemonDto.toDomain(): Pokemon = Pokemon(
     abilities = abilities.map { Ability(name = it.ability.name, isHidden = it.is_hidden) },
     stats = stats.map { Stat(name = it.stat.name, baseValue = it.base_stat) },
     sprites = sprites.toDomain(),
+    artworkUrl = sprites.other?.official_artwork?.front_default,
     cryUrl = cries?.latest ?: cries?.legacy
 )
 

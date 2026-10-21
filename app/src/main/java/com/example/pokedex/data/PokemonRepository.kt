@@ -34,6 +34,20 @@ class PokemonRepository @Inject constructor(
     suspend fun getAllPokemons(): List<PokemonSummary> =
         api.getPokemonPage(limit = 100000, offset = 0).results.map { it.toPokemonSummary() }
 
+    /** Every species in National Pokédex order: one entry per number, named after the species. */
+    suspend fun getAllSpecies(): List<PokemonSummary> =
+        api.getPokemonSpeciesPage(limit = 100000, offset = 0).results.map { it.toPokemonSummary() }
+
+    /**
+     * The species' default Pokémon, which is what its detail page shows. Its name can differ from
+     * the species' ("giratina" -> "giratina-altered").
+     */
+    suspend fun getDefaultPokemon(speciesName: String): Pokemon {
+        val varieties = api.getPokemonSpecies(speciesName).varieties
+        val default = varieties.firstOrNull { it.is_default } ?: varieties.first()
+        return getPokemon(default.pokemon.name)
+    }
+
     /** Number of species in the National Pokédex (1025 as of Gen 9); forms aren't counted. */
     suspend fun getSpeciesCount(): Int = api.getPokemonSpeciesCount().count
 

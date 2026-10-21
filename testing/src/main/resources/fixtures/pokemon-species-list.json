@@ -1,0 +1,43 @@
+{
+  "count": 9,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "name": "bulbasaur",
+      "url": "https://pokeapi.co/api/v2/pokemon-species/1/"
+    },
+    {
+      "name": "ivysaur",
+      "url": "https://pokeapi.co/api/v2/pokemon-species/2/"
+    },
+    {
+      "name": "venusaur",
+      "url": "https://pokeapi.co/api/v2/pokemon-species/3/"
+    },
+    {
+      "name": "tauros",
+      "url": "https://pokeapi.co/api/v2/pokemon-species/128/"
+    },
+    {
+      "name": "eevee",
+      "url": "https://pokeapi.co/api/v2/pokemon-species/133/"
+    },
+    {
+      "name": "vaporeon",
+      "url": "https://pokeapi.co/api/v2/pokemon-species/134/"
+    },
+    {
+      "name": "jolteon",
+      "url": "https://pokeapi.co/api/v2/pokemon-species/135/"
+    },
+    {
+      "name": "flareon",
+      "url": "https://pokeapi.co/api/v2/pokemon-species/136/"
+    },
+    {
+      "name": "giratina",
+      "url": "https://pokeapi.co/api/v2/pokemon-species/487/"
+    }
+  ]
+}

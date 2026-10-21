@@ -71,6 +71,25 @@ class PokemonRepositoryTest {
     }
 
     @Test
+    fun `the species list has one entry per species, named after it`() = runTest {
+        val species = repository.getAllSpecies()
+
+        assertEquals(listOf("pokemon-species?limit=100000&offset=0"), api.requests)
+        assertEquals(listOf(1, 2, 3, 128, 133, 134, 135, 136, 487), species.map { it.id })
+        assertEquals("giratina", species.last().name)
+    }
+
+    @Test
+    fun `a species opens as its default Pokemon, whose name can carry a form suffix`() = runTest {
+        val giratina = repository.getDefaultPokemon("giratina")
+
+        assertEquals(listOf("pokemon-species/giratina", "pokemon/giratina-altered"), api.requests)
+        assertEquals("giratina-altered", giratina.name)
+        assertEquals("giratina", giratina.speciesName)
+        assertEquals(487, giratina.id)
+    }
+
+    @Test
     fun `the species total comes from the count endpoint`() = runTest {
         assertEquals(1025, repository.getSpeciesCount())
     }

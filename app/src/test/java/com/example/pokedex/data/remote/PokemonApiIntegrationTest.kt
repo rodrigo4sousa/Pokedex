@@ -89,6 +89,24 @@ class PokemonApiIntegrationTest {
     }
 
     @Test
+    fun `getPokemonSpeciesPage sends limit and offset and reads species names`() = runTest {
+        val page = api.getPokemonSpeciesPage(limit = 100000, offset = 0)
+
+        val request = requireNotNull(server.takeRequest(1, TimeUnit.SECONDS))
+        assertEquals("/pokemon-species", request.requestUrl!!.encodedPath)
+        assertEquals("100000", request.requestUrl!!.queryParameter("limit"))
+        assertEquals("0", request.requestUrl!!.queryParameter("offset"))
+        assertTrue(page.results.any { it.name == "giratina" })
+    }
+
+    @Test
+    fun `getPokemonSpecies reads the default variety`() = runTest {
+        val species = api.getPokemonSpecies("giratina")
+
+        assertEquals("giratina-altered", species.varieties.single { it.is_default }.pokemon.name)
+    }
+
+    @Test
     fun `getPokemonSpeciesCount asks for a single result`() = runTest {
         val count = api.getPokemonSpeciesCount()
 

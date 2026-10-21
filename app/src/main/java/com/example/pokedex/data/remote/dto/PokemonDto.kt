@@ -1,5 +1,7 @@
 package com.example.pokedex.data.remote.dto
 
+import com.google.gson.annotations.SerializedName
+
 // GET pokemon/{name}. PokeAPI sends more fields (moves, game_indices, ...); these are the ones the app reads.
 data class PokemonDto(
     val id: Int,
@@ -42,7 +44,17 @@ data class SpritesDto(
     val front_default: String?,
     val front_female: String?,
     val front_shiny: String?,
-    val front_shiny_female: String?
+    val front_shiny_female: String?,
+    val other: OtherSpritesDto?
+)
+
+// sprites.other; only the official artwork is read.
+data class OtherSpritesDto(
+    @SerializedName("official-artwork") val official_artwork: ArtworkDto?
+)
+
+data class ArtworkDto(
+    val front_default: String?
 )
 
 // URLs of .ogg sound files; older Pokémon also have the original game's cry as "legacy".
