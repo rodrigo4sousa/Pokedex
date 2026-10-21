@@ -12,7 +12,7 @@ The docs use two models because they answer different questions. **C4** zooms in
   - **No invented elements:** every element and relationship exists in the code or the build configuration.
   - **Planned items are kept apart from existing ones:** they appear only in `04-deployment-planned`, drawn dashed.
   - **Dead code is left out.**
-  - **About 10 elements at most.** The component level has 15, so it is split into a UI layer and a data layer.
+  - **About 10 elements at most.** The component level has 21, so it is split into three parts: the UI layer, the data layer and the guess game.
   - **One shared style:** every diagram includes [`style.puml`](style.puml).
 - The same name means the same element in every diagram.
 
@@ -24,8 +24,9 @@ The docs use two models because they answer different questions. **C4** zooms in
 |---|---|---|
 | [1. Context](out/01-context.svg) | [`01-context.puml`](c4/01-context.puml) | User, Pokédex App, PokeAPI, PokeAPI Sprites (GitHub raw), PokeAPI Cries (GitHub raw) |
 | [2. Containers](out/02-containers.svg) | [`02-containers.puml`](c4/02-containers.puml) | Android App and Local Database (Room / SQLite), plus the three external systems |
-| [3. Components: UI layer](out/03-components-android-app-ui.svg) | [`03-components-android-app-ui.puml`](c4/03-components-android-app-ui.puml) | MainActivity, Navigation, the 3 screens, the 3 ViewModels, PokemonRepository |
+| [3. Components: UI layer](out/03-components-android-app-ui.svg) | [`03-components-android-app-ui.puml`](c4/03-components-android-app-ui.puml) | MainActivity, Navigation, the 4 screens, the 4 ViewModels, PokemonRepository |
 | [3. Components: data layer](out/03-components-android-app-data.svg) | [`03-components-android-app-data.puml`](c4/03-components-android-app-data.puml) | ViewModels, PokemonRepository, Mappers, PokemonApi, NetworkModule, CaughtPokemonDao, PokedexDatabase, DatabaseModule |
+| [3. Components: guess game](out/03-components-android-app-guess.svg) | [`03-components-android-app-guess.puml`](c4/03-components-android-app-guess.puml) | GuessScreen, GuessViewModel, GuessGame, ClockModule, PokemonRepository, GuessGameRepository, GuessGameDao, PokedexDatabase, DatabaseModule |
 | [Dynamic: browse and filter](out/dynamic-browse-and-filter.svg) | [`dynamic-browse-and-filter.puml`](c4/dynamic-browse-and-filter.puml) | Load the full list, then filter by type |
 | [Dynamic: catch / release](out/dynamic-catch-release-pokemon.svg) | [`dynamic-catch-release-pokemon.puml`](c4/dynamic-catch-release-pokemon.puml) | Star → Room insert/delete → LiveData back to the screen |
 | [Dynamic: open detail](out/dynamic-open-pokemon-detail.svg) | [`dynamic-open-pokemon-detail.puml`](c4/dynamic-open-pokemon-detail.puml) | Load a Pokémon, then caught state, evolution chain and types in parallel |
@@ -38,11 +39,11 @@ Who each view is for, and which decision it documents, is in [`4plus1/README.md`
 
 | View | Diagrams |
 |---|---|
-| Logical | [class diagram](out/logical.svg) ([`.puml`](4plus1/logical.puml)) |
+| Logical | [Pokédex catalog](out/logical-catalog.svg) ([`.puml`](4plus1/logical-catalog.puml)), [guess game](out/logical-guess-game.svg) ([`.puml`](4plus1/logical-guess-game.puml)) |
 | Process | [open Pokémon detail](out/process-open-pokemon-detail.svg) ([`.puml`](4plus1/process-open-pokemon-detail.puml)), [caught state sync](out/process-caught-state-sync.svg) ([`.puml`](4plus1/process-caught-state-sync.puml)) |
 | Development | [package diagram](out/development.svg) ([`.puml`](4plus1/development.puml)) |
 | Physical | [deployment diagram](out/physical.svg) ([`.puml`](4plus1/physical.puml)) |
-| Scenarios (+1) | [use cases](out/scenarios-use-cases.svg) ([`.puml`](4plus1/scenarios-use-cases.puml)), [browse and filter](out/scenarios-browse-and-filter.svg) ([`.puml`](4plus1/scenarios-browse-and-filter.puml)), [catch / release](out/scenarios-catch-release.svg) ([`.puml`](4plus1/scenarios-catch-release.puml)), [view detail](out/scenarios-view-detail.svg) ([`.puml`](4plus1/scenarios-view-detail.puml)), [My Pokédex](out/scenarios-my-pokedex.svg) ([`.puml`](4plus1/scenarios-my-pokedex.puml)) |
+| Scenarios (+1) | [use cases](out/scenarios-use-cases.svg) ([`.puml`](4plus1/scenarios-use-cases.puml)), [browse and filter](out/scenarios-browse-and-filter.svg) ([`.puml`](4plus1/scenarios-browse-and-filter.puml)), [catch / release](out/scenarios-catch-release.svg) ([`.puml`](4plus1/scenarios-catch-release.puml)), [view detail](out/scenarios-view-detail.svg) ([`.puml`](4plus1/scenarios-view-detail.puml)), [My Pokédex](out/scenarios-my-pokedex.svg) ([`.puml`](4plus1/scenarios-my-pokedex.puml)), [guess the daily Pokémon](out/scenarios-guess-pokemon.svg) ([`.puml`](4plus1/scenarios-guess-pokemon.puml)) |
 
 ### Guide ([`guide/`](guide/))
 

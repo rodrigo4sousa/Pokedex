@@ -1,10 +1,12 @@
-' C4 Level 3 - Components of the Android App, part 1 of 2: UI layer
-' Version 1.2 - 2026-10-20 - reflects the current working tree
+' C4 Level 3 - Components of the Android App, part 1 of 3: UI layer
+' Version 1.3 - 2026-10-21
 ' Split from 03-components-android-app.puml (more than ~10 components per diagram); part 2 is
-' 03-components-android-app-data.puml. PokemonRepository and the ViewModels appear in both.
+' 03-components-android-app-data.puml, part 3 (the guess game) 03-components-android-app-guess.puml.
+' PokemonRepository and the ViewModels appear in more than one part.
 ' Navigation lives in presentation.navigation. Shared composables in presentation.components (PokemonGrid,
-' PokemonSearchBar, SortChips, FilterSidePanel, CatchStarButton, TypeColors) are part of the screens, not drawn.
+' PokemonSearchBar, SortChips, FilterSidePanel, CatchStarButton, TypeColors, ErrorMessage) are part of the screens, not drawn.
 ' PokemonDetailScreen streams cries with MediaPlayer from PokeAPI Cries (GitHub raw); other containers are not drawn at this level.
+' GuessViewModel's game rules and saved state (GuessGame, GuessGameRepository) are drawn in part 3.
 @startuml 03-components-android-app-ui
 !include <C4/C4_Component>
 !include ../style.puml
@@ -15,14 +17,16 @@ title Components - Android App (UI layer)
 
 Container_Boundary(androidApp, "Android App") {
     Component(mainActivity, "MainActivity", "ComponentActivity", "Single Activity; Hilt entry point")
-    Component(navigation, "Navigation", "Navigation Compose", "NavHost and Home / Pokédex bottom bar")
+    Component(navigation, "Navigation", "Navigation Compose", "NavHost and Home / Pokédex / Guess tabs")
 
     Component(homeScreen, "HomeScreen", "Compose, Coil", "Full list: search, sort, type filter")
     Component(pokedexScreen, "PokedexScreen", "Compose, Coil", "Caught list with counter")
+    Component(guessScreen, "GuessScreen", "Compose, Coil", "Daily silhouette, guesses, hearts, streak")
     Component(detailScreen, "PokemonDetailScreen", "Compose, Coil, MediaPlayer", "Stats, sprites, cry, evolutions, type matchups")
 
     Component(homeVm, "HomeViewModel", "ViewModel, LiveData")
     Component(pokedexVm, "PokedexViewModel", "ViewModel, LiveData")
+    Component(guessVm, "GuessViewModel", "ViewModel, LiveData")
     Component(detailVm, "PokemonDetailViewModel", "ViewModel, LiveData")
 
     Component(repository, "PokemonRepository", "Hilt @Singleton", "Single data access point; in-memory type cache")
@@ -31,13 +35,16 @@ Container_Boundary(androidApp, "Android App") {
 Rel(mainActivity, navigation, $plain("Sets content"), "setContent")
 Rel(navigation, homeScreen, $plain("Shows Home tab"), "Navigation Compose")
 Rel(navigation, pokedexScreen, $plain("Shows Pokédex tab"), "Navigation Compose")
+Rel(navigation, guessScreen, $plain("Shows Guess tab"), "Navigation Compose")
 Rel(navigation, detailScreen, $plain("Opens Pokémon detail"), "route arg: name")
 
 Rel(homeScreen, homeVm, $plain("Observes and calls"), "LiveData")
 Rel(pokedexScreen, pokedexVm, $plain("Observes and calls"), "LiveData")
+Rel(guessScreen, guessVm, $plain("Observes and calls"), "LiveData")
 Rel(detailScreen, detailVm, $plain("Observes and calls"), "LiveData")
 
 Rel(homeVm, repository, $plain("Loads and updates data"), "coroutines, LiveData")
 Rel(pokedexVm, repository, $plain("Loads and updates data"), "coroutines, LiveData")
+Rel(guessVm, repository, $plain("Loads species and artwork"), "coroutines")
 Rel(detailVm, repository, $plain("Loads and updates data"), "coroutines, LiveData")
 @enduml

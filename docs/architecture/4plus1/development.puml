@@ -1,13 +1,15 @@
 ' 4+1 Development view - UML package diagram
-' Version 1.3 - 2026-10-20
+' Version 1.4 - 2026-10-21
 ' For: developers finding their way in the code and planning refactors. Documents the decision to keep a
 ' single app module (:app) organised by layer, plus a test-only module (:testing) for code shared by
 ' src/test and src/androidTest:
-' - presentation depends on data (PokemonRepository) and domain.model only;
+' - presentation depends on data (the repositories), domain.model and domain.game only;
+' - domain.game (the guess game's rules) is plain Kotlin and depends on domain.model only;
 ' - data.remote (Retrofit, DTOs) and data.local (Room) stay inside the data layer; data.mapper turns their
 '   types into domain.model, which depends on nothing else.
 ' Arrows are import dependencies, labelled with what is imported (from the imports in app/src/main).
-' Arrows from `presentation` group its subpackages: data and domain.model (home, pokedex, pokemonDetail).
+' Arrows from `presentation` group its subpackages: data and domain.model (home, pokedex, pokemonDetail, guess).
+' di holds ClockModule; like the other Hilt modules it is only referenced by Hilt's generated code, so no arrow points to it.
 ' Package names below com.example.pokedex are shown relative to it (data.local = com.example.pokedex.data.local).
 ' :testing is plain Kotlin/JVM with no app classes: recorded PokeAPI fixtures (resources) and PokeApiDispatcher.
 ' :app's test source sets (src/test, src/androidTest) are not drawn as packages; they depend on :testing.
@@ -27,9 +29,12 @@ package ":app module" {
         package "home"
         package "pokedex"
         package "pokemonDetail"
+        package "guess"
         package "components"
     }
     package "domain.model"
+    package "domain.game"
+    package "di"
     package "data"
     package "data.mapper"
     package "data.remote"
@@ -47,22 +52,26 @@ package ":testing module (test only)" {
 "navigation" --> "home" : HomeScreen
 "navigation" --> "pokedex" : PokedexScreen
 "navigation" --> "pokemonDetail" : PokemonDetailScreen
+"navigation" --> "guess" : GuessScreen
 
 "home" --> "components" : grid, search, sort, filter
 "pokedex" --> "components" : grid, search, sort, filter
 "pokemonDetail" --> "components" : star, typeColor
+"guess" --> "components" : ErrorMessage, LoadError
+"guess" --> "domain.game" : GuessGame
+"domain.game" --> "domain.model" : models
 "components" --> "domain.model" : PokemonSummary
 
-"presentation" --> "data" : PokemonRepository
+"presentation" --> "data" : repositories
 "presentation" --> "domain.model" : models
 
 "data" --> "data.remote" : PokemonApi
-"data" --> "data.local" : CaughtPokemonDao
+"data" --> "data.local" : DAOs
 "data" --> "data.mapper" : mappers
 "data" --> "domain.model" : models
 "data.remote" --> "data.remote.dto" : DTOs
 "data.mapper" --> "data.remote.dto" : DTOs
-"data.mapper" --> "data.local" : CaughtPokemonEntity
+"data.mapper" --> "data.local" : entities
 "data.mapper" --> "domain.model" : models
 
 ":app module" ..> "testing" : testImplementation,\nandroidTestImplementation

@@ -1,0 +1,87 @@
+' 4+1 Logical view, part 2 of 2: the daily guess game - UML class diagram
+' Version 1.0 - 2026-10-21
+' Split from logical.puml to keep each part near 10 classes; part 1 is logical-catalog.puml.
+' For: developers changing the game. Documents the decision to keep the rules (daily pick, name matching,
+' hearts, streak) in GuessGame, a plain Kotlin class with no Android dependencies, and the saved state in
+' GuessGameRepository; GuessViewModel only connects them to PokemonRepository and the UI.
+' The answer is a species name; the artwork and the detail page come from the species' default Pokémon.
+' Members shown: public LiveData and actions only; PokemonRepository shows only what the game uses.
+' GuessGameRepository returns DailyRound and Streak, as its signatures show; those arrows are left out to avoid crossings.
+' Not drawn: GuessUiState and GuessOutcome (sealed types), the mappers - see c4/03-components-android-app-guess.puml.
+@startuml logical-guess-game
+!include ../style.puml
+
+title Logical view - guess game
+
+package "UI layer" {
+    class GuessViewModel {
+        +uiState: LiveData<GuessUiState>
+        +guess(input)
+        +retry()
+    }
+}
+
+package "Game rules" {
+    class GuessGame {
+        +dailyPick(date, species): PokemonSummary
+        +matches(input, speciesName): Boolean
+        +guess(round, input, speciesNames): GuessResult
+        +currentStreak(streak, today): Int
+        +afterRound(streak, today, result): Streak
+    }
+}
+
+package "Data layer" {
+    class PokemonRepository <<Singleton>> {
+        +getAllSpecies(): List<PokemonSummary>
+        +getDefaultPokemon(species): Pokemon
+    }
+    class GuessGameRepository <<Singleton>> {
+        +getRound(date): DailyRound?
+        +saveRound(round)
+        +getStreak(): Streak
+        +saveStreak(streak)
+    }
+    class DailyRoundEntity <<Room entity>> {
+        +epochDay: Long {PK}
+        +speciesName: String
+        +wrongGuesses, heartsLeft, result
+    }
+    class StreakEntity <<Room entity>> {
+        +id: Int {PK, single row}
+        +count: Int
+        +lastWonEpochDay: Long?
+    }
+}
+
+package "Domain model" {
+    class DailyRound {
+        +date: LocalDate
+        +speciesName: String
+        +wrongGuesses: List<String>
+        +heartsLeft: Int
+        +result: RoundResult
+    }
+    class Streak {
+        +count: Int
+        +lastWonDate: LocalDate?
+    }
+    class PokemonSummary {
+        +id: Int
+        +name: String
+        +spriteUrl: String
+    }
+}
+
+GuessViewModel --> GuessGame : uses
+GuessViewModel --> PokemonRepository : uses
+GuessViewModel --> GuessGameRepository : uses
+
+GuessGame ..> PokemonSummary : picks from
+GuessGame ..> DailyRound : updates
+GuessGame ..> Streak : updates
+
+PokemonRepository ..> PokemonSummary : returns
+GuessGameRepository ..> DailyRoundEntity : reads / writes
+GuessGameRepository ..> StreakEntity : reads / writes
+@enduml

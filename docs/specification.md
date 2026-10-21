@@ -56,3 +56,15 @@ Tests: [`MyPokedexSystemTest`](../app/src/androidTest/java/com/example/pokedex/s
 - Searching filters the caught Pokémon by name. (`searchFindsCaughtPokemonByName`)
 
 Not covered by a system test: sorting and the type filter on this screen.
+
+## US06 - Guess the daily Pokémon
+
+As a user, I want to guess a hidden Pokémon every day, so that I test what I know and keep a streak going.
+
+Tests: [`GuessPokemonSystemTest`](../app/src/androidTest/java/com/example/pokedex/system/GuessPokemonSystemTest.kt) (the test fixes the date, so the day's Pokémon is Bulbasaur)
+
+- The Guess tab shows the day's Pokémon as a silhouette with three hearts. Until the round ends, nothing on screen names it, not even the silhouette's description ("Hidden Pokémon"). (`guessingRightRevealsThePokemonAndStartsAStreak`)
+- Typing the name in any case and with spaces or hyphens ("BULBA-saur") and tapping Guess reveals the Pokémon: "You got it!", its name, "Streak: 1" and "Come back tomorrow for a new Pokémon." "Open details" opens its detail page. (`guessingRightRevealsThePokemonAndStartsAStreak`)
+- A wrong Pokémon costs a heart and is listed under the field ("2 of 3 hearts left", "Ivysaur"). A name that isn't a Pokémon shows "“Agumon” isn't a Pokémon." and costs nothing. After the third wrong guess the screen shows "Out of hearts!", the Pokémon's name, "Streak: 0" and "Come back tomorrow for a new Pokémon." (`threeWrongGuessesRevealThePokemonAndResetTheStreak`)
+
+Not covered by a system test: the streak over several days, a missed day, and the round surviving a restart (covered by `GuessViewModelTest`); the silhouette's colours and the reveal animation.

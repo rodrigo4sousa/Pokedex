@@ -1,0 +1,37 @@
+' C4 Level 3 - Components of the Android App, part 3 of 3: the daily guess game
+' Version 1.0 - 2026-10-21
+' Parts 1 and 2 are 03-components-android-app-ui.puml and 03-components-android-app-data.puml; GuessScreen,
+' GuessViewModel, PokemonRepository and the database appear in more than one part.
+' GuessGame holds the rules (daily pick, name matching, hearts, streak) as plain Kotlin with no Android
+' dependencies. The round and the streak are Room tables daily_round and streak, added in schema v2 by
+' MIGRATION_1_2; GuessGameRepository converts their entities with the mappers in data.mapper (not drawn).
+@startuml 03-components-android-app-guess
+!include <C4/C4_Component>
+!include ../style.puml
+
+LAYOUT_TOP_DOWN()
+
+title Components - Android App (guess game)
+
+Container_Boundary(androidApp, "Android App") {
+    Component(guessScreen, "GuessScreen", "Compose, Coil", "Daily silhouette, guesses, hearts, streak")
+    Component(guessVm, "GuessViewModel", "ViewModel, LiveData")
+    Component(guessGame, "GuessGame", "Kotlin class", "Daily pick, name matching, hearts, streak rules")
+    Component(clockModule, "ClockModule", "Hilt module", "Provides the clock for today's date")
+
+    Component(repository, "PokemonRepository", "Hilt @Singleton", "Species list and default Pokémon")
+    Component(gameRepository, "GuessGameRepository", "Hilt @Singleton", "Saves today's round and the streak")
+    Component(gameDao, "GuessGameDao", "Room DAO", "daily_round and streak queries")
+    Component(database, "PokedexDatabase", "Room database", "pokedex.db, schema v2 (exported)")
+    Component(databaseModule, "DatabaseModule", "Hilt module", "Provides database and DAOs")
+}
+
+Rel(guessScreen, guessVm, $plain("Observes and calls"), "LiveData")
+Rel(guessVm, guessGame, $plain("Applies game rules"), "function calls")
+Rel(clockModule, guessVm, $plain("Provides today's date"), "Hilt @Provides, java.time.Clock")
+Rel(guessVm, repository, $plain("Loads species and artwork"), "coroutines")
+Rel(guessVm, gameRepository, $plain("Loads and saves progress"), "coroutines")
+Rel(gameRepository, gameDao, $plain("Reads and writes rows"), "suspend calls")
+Rel(databaseModule, gameDao, $plain("Provides DAO"), "Hilt @Provides")
+Rel(databaseModule, database, $plain("Builds and migrates database"), "Room.databaseBuilder, MIGRATION_1_2")
+@enduml

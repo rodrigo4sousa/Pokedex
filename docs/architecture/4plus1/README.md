@@ -3,10 +3,10 @@
 UML views of the Pokédex Android app. Names match the C4 diagrams in `../c4/`: the same name is the same element.
 Rendered SVGs are in [`../out/`](../out/).
 
-## Logical view: `logical.puml`
+## Logical view: `logical-catalog.puml`, `logical-guess-game.puml`
 
 **For:** developers changing or adding features.
-**Decision documented:** MVVM with one ViewModel per screen and a single `PokemonRepository`, with no use-case layer. The repository takes PokeAPI DTOs and Room entities and returns domain models only (`Pokemon`, `PokemonSummary`, `CaughtPokemon`, `EvolutionStage`), so neither PokeAPI's JSON shape nor the Room entity reaches the ViewModels. Classes are grouped by the layer they work in.
+**Decision documented:** MVVM with one ViewModel per screen and a single `PokemonRepository` for Pokémon data, with no use-case layer. The guess game adds `GuessGameRepository` for its saved round and streak, and keeps its rules in `GuessGame`, a plain Kotlin class the ViewModel calls. The view is split in two, the Pokédex catalog and the guess game, so each diagram stays near ten classes; `PokemonRepository` appears in both. The repository takes PokeAPI DTOs and Room entities and returns domain models only (`Pokemon`, `PokemonSummary`, `CaughtPokemon`, `EvolutionStage`), so neither PokeAPI's JSON shape nor the Room entity reaches the ViewModels. Classes are grouped by the layer they work in.
 
 ## Process view: `process-open-pokemon-detail.puml`, `process-caught-state-sync.puml`
 
@@ -19,7 +19,7 @@ Rendered SVGs are in [`../out/`](../out/).
 ## Development view: `development.puml`
 
 **For:** developers finding their way in the code or planning refactors.
-**Decision documented:** a single app module, `:app`, organised by layer (`data`, `domain`, `presentation`), plus a test-only module, `:testing`, for fixtures and test code shared by `src/test` and `src/androidTest`. Navigation lives in `presentation.navigation` and the shared composables (grid, search bar, sort, filter) in `presentation.components`. Packages are drawn as they are in the code. `presentation` depends only on `data` (the repository) and `domain.model`; `data.remote` (Retrofit and DTOs) and `data.local` (Room) stay inside the data layer, and `data.mapper` turns their types into `domain.model`.
+**Decision documented:** a single app module, `:app`, organised by layer (`data`, `domain`, `presentation`), plus a test-only module, `:testing`, for fixtures and test code shared by `src/test` and `src/androidTest`. Navigation lives in `presentation.navigation` and the shared composables (grid, search bar, sort, filter) in `presentation.components`. Packages are drawn as they are in the code. `presentation` depends only on `data` (the repositories), `domain.model` and `domain.game` (the guess game's rules, which depend on `domain.model` only); `data.remote` (Retrofit and DTOs) and `data.local` (Room) stay inside the data layer, and `data.mapper` turns their types into `domain.model`.
 
 ## Physical view: `physical.puml`
 
@@ -38,5 +38,6 @@ Rendered SVGs are in [`../out/`](../out/).
 | Catch / release a Pokémon | US01, US02 | `scenarios-catch-release.puml` | `CatchReleaseSystemTest` |
 | View Pokémon detail | US04 | `scenarios-view-detail.puml` | `ViewDetailSystemTest` |
 | Review My Pokédex | US05 | `scenarios-my-pokedex.puml` | `MyPokedexSystemTest` |
+| Guess the daily Pokémon | US06 | `scenarios-guess-pokemon.puml` | `GuessPokemonSystemTest` |
 
 Each system test class is named after its scenario and checks what the user sees, through the Compose UI, against the recorded fixtures.

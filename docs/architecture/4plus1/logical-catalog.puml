@@ -1,5 +1,6 @@
-' 4+1 Logical view - UML class diagram
-' Version 1.2 - 2026-10-20
+' 4+1 Logical view, part 1 of 2: the Pokédex catalog - UML class diagram
+' Version 1.3 - 2026-10-21
+' Split from logical.puml to keep each part near 10 classes; part 2 is logical-guess-game.puml.
 ' For: developers changing features. Documents the decision to use MVVM with one ViewModel per
 ' screen and a single PokemonRepository, with no use-case layer, and to keep PokeAPI's and Room's shapes
 ' out of the UI: the repository takes DTOs (data.remote.dto) and entities (data.local) and returns
@@ -8,10 +9,10 @@
 ' Members shown: public LiveData and actions only.
 ' Not drawn: the DTO classes (PokemonDto, ChainLinkDto, TypeDto, ...) and the mappers - see
 ' c4/03-components-android-app-data.puml; Ability, Stat, Sprites, EvolutionCondition are shown as attribute types.
-@startuml logical
+@startuml logical-catalog
 !include ../style.puml
 
-title Logical view - classes
+title Logical view - Pokédex catalog
 
 package "UI layer" {
     class HomeViewModel {
@@ -56,6 +57,8 @@ package "Data layer" {
         +getTypeEffectiveness(types): Map
         +getPokemonNamesOfType(type): Set
         +getSpeciesCount(): Int
+        +getAllSpecies(): List<PokemonSummary>
+        +getDefaultPokemon(species): Pokemon
         +getCaught(): LiveData<List<CaughtPokemon>>
         +isCaught(name) / catchPokemon() / releasePokemon()
     }
@@ -85,6 +88,7 @@ package "Domain model" {
         +abilities: List<Ability>
         +stats: List<Stat>
         +sprites: Sprites
+        +artworkUrl: String?
         +cryUrl: String?
     }
     class EvolutionStage {

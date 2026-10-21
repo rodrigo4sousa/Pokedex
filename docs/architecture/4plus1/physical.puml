@@ -1,5 +1,5 @@
 ' 4+1 Physical view - UML deployment diagram
-' Version 1.2 - 2026-10-20 - reflects the current working tree
+' Version 1.3 - 2026-10-21
 ' For: whoever installs, supports or releases the app. Documents the decision to run everything on the
 ' device (no backend): the only remote dependencies are public HTTPS hosts, and the only persistent data
 ' is a local SQLite file inside the app sandbox.
@@ -30,7 +30,7 @@ node "raw.githubusercontent.com" as rawHost {
     component "PokeAPI Cries\n(GitHub raw)" <<external>> as cries
 }
 
-apk --> db : Stores caught Pokémon\n[Room DAO]
+apk --> db : Stores catches, game progress\n[Room DAOs]
 apk --> pokeApi : Reads Pokémon data\n[Retrofit, HTTPS/JSON]
 apk --> sprites : Loads sprite images\n[Coil, HTTPS]
 apk --> cries : Streams Pokémon cries\n[MediaPlayer, HTTPS]

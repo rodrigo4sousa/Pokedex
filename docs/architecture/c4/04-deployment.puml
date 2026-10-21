@@ -1,5 +1,5 @@
 ' C4 Deployment - what exists today
-' Version 1.2 - 2026-10-20 - reflects the current working tree
+' Version 1.3 - 2026-10-21
 ' Only existing elements. Play Store publication and CI are planned: see 04-deployment-planned.puml.
 ' The app is not published; it runs as a locally installed APK. No backend, no cloud services.
 ' Not drawn: Android Auto Backup / device transfer. Explicit rules (backup_rules.xml, data_extraction_rules.xml)
@@ -29,7 +29,7 @@ Deployment_Node(githubRawNode, "raw.githubusercontent.com", "Public HTTPS host")
     System_Ext(criesHost, "PokeAPI Cries (GitHub raw)")
 }
 
-Rel(androidApp, localDb, $plain("Stores caught Pokémon"), "Room DAO")
+Rel(androidApp, localDb, $plain("Stores catches, game progress"), "Room DAOs")
 Rel(androidApp, pokeApi, $plain("Reads Pokémon data"), "Retrofit, HTTPS/JSON")
 Rel(androidApp, spritesHost, $plain("Loads sprite images"), "Coil, HTTPS")
 Rel(androidApp, criesHost, $plain("Streams Pokémon cries"), "MediaPlayer, HTTPS")

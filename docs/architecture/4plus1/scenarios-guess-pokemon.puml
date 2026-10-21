@@ -1,0 +1,51 @@
+' 4+1 Scenarios (+1) - Guess the daily Pokémon (US06)
+' Version 1.0 - 2026-10-21
+' Shows how the Logical view (GuessViewModel, GuessGame, PokemonRepository, GuessGameRepository) supports the
+' daily game: the first visit of the day picks a species and saves the round in Room, so the pick and the
+' progress survive closing the app; every guess is checked by GuessGame, a plain Kotlin class.
+' The answer is a species name; the artwork and the detail page use the species' default Pokémon.
+' System test: GuessPokemonSystemTest.
+@startuml scenarios-guess-pokemon
+!include ../style.puml
+
+title Scenario - guess the daily Pokémon
+autonumber
+
+actor User
+participant GuessScreen
+participant GuessViewModel
+participant GuessGame
+participant PokemonRepository
+participant GuessGameRepository
+database "Local Database" as LocalDb
+participant PokeAPI <<external>>
+
+User -> GuessScreen : opens the Guess tab
+GuessScreen -> GuessViewModel : observes uiState
+GuessViewModel -> PokemonRepository : getAllSpecies()
+PokemonRepository -> PokeAPI : GET pokemon-species?limit=100000
+GuessViewModel -> GuessGameRepository : getRound(today)
+GuessGameRepository -> LocalDb : SELECT daily_round
+alt no round saved today
+    GuessViewModel -> GuessGame : newRound(today, species)
+    GuessViewModel -> GuessGameRepository : saveRound(round)
+end
+GuessViewModel -> PokemonRepository : getDefaultPokemon(species)
+PokemonRepository -> PokeAPI : GET pokemon-species/{name}, pokemon/{default}
+GuessViewModel --> GuessScreen : Playing (silhouette, 3 hearts, streak)
+User -> GuessScreen : types a name, taps Guess
+GuessScreen -> GuessViewModel : guess(input)
+GuessViewModel -> GuessGame : guess(round, input, species names)
+alt correct
+    GuessViewModel -> GuessGame : afterRound(streak, Won)
+    GuessViewModel -> GuessGameRepository : saveRound, saveStreak
+    GuessViewModel --> GuessScreen : Finished (artwork, name, streak + 1)
+else wrong (third miss ends the round)
+    GuessViewModel -> GuessGameRepository : saveRound(one heart less)
+    GuessViewModel --> GuessScreen : Playing, or Finished with streak 0
+else not a Pokémon, or already guessed
+    GuessViewModel --> GuessScreen : message, no heart lost
+end
+User -> GuessScreen : taps Open details
+GuessScreen -> User : detail page of the default Pokémon
+@enduml

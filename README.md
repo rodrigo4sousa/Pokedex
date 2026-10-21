@@ -7,9 +7,9 @@
 
 An Android Pokédex: browse every Pokémon from [PokeAPI](https://pokeapi.co/), inspect stats, evolutions and type matchups, and keep a list of the Pokémon you caught on the device.
 
-| Home | Type filter | Detail | Stats & matchups | My Pokédex |
-|:---:|:---:|:---:|:---:|:---:|
-| ![Home: every Pokémon in a grid](docs/images/screenshot-home.png) | ![Filter side panel with the 18 types](docs/images/screenshot-filters.png) | ![Charizard detail: sprite, types, abilities](docs/images/screenshot-detail.png) | ![Charizard: base stats, type effectiveness, evolution chain](docs/images/screenshot-detail-matchups.png) | ![My Pokédex: caught Pokémon with counter](docs/images/screenshot-my-pokedex.png) |
+| Home | Type filter | Detail | Stats & matchups | My Pokédex | Guess | Guess result |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| ![Home: every Pokémon in a grid](docs/images/screenshot-home.png) | ![Filter side panel with the 18 types](docs/images/screenshot-filters.png) | ![Charizard detail: sprite, types, abilities](docs/images/screenshot-detail.png) | ![Charizard: base stats, type effectiveness, evolution chain](docs/images/screenshot-detail-matchups.png) | ![My Pokédex: caught Pokémon with counter](docs/images/screenshot-my-pokedex.png) | ![Guess: the daily Pokémon as a silhouette, one wrong guess, two hearts left](docs/images/screenshot-guess.png) | ![Guess result: Parasect revealed, streak 1](docs/images/screenshot-guess-result.png) |
 
 ## Features
 
@@ -18,6 +18,7 @@ An Android Pokédex: browse every Pokémon from [PokeAPI](https://pokeapi.co/), 
 - **Browse all Pokémon (US03):** the full list, forms included, with search by name, sorting by number or name, and a filter by type (selected types combine with OR).
 - **Inspect a Pokémon (US04):** sprites (front/back, shiny, female), its cry, height, weight, abilities, base stats, weaknesses and resistances computed from its types, and the evolution chain with its conditions.
 - **Review My Pokédex (US05):** the caught Pokémon with a "Caught x / 1025" counter, search, sorting by number, name or date caught, and the same type filter.
+- **Guess the daily Pokémon (US06):** one hidden Pokémon a day, shown as a silhouette. Three hearts to name it; a win raises the streak, a loss or a missed day resets it. The round and the streak are saved on the device.
 
 The user stories and their acceptance criteria are in [`docs/specification.md`](docs/specification.md).
 
@@ -29,11 +30,11 @@ Kotlin 2.4.20 and coroutines, Jetpack Compose with Material 3, Navigation Compos
 
 ![C4 container diagram: User, Android App, Local Database, PokeAPI, PokeAPI Sprites, PokeAPI Cries](docs/architecture/out/02-containers.svg)
 
-The app has no backend. Pokémon data is public and read-only, so the app reads it straight from PokeAPI, and the sprites and cries straight from PokeAPI's repositories on GitHub. The only data the user creates, the list of caught Pokémon, stays on the device in a Room database.
+The app has no backend. Pokémon data is public and read-only, so the app reads it straight from PokeAPI, and the sprites and cries straight from PokeAPI's repositories on GitHub. The only data the user creates, the list of caught Pokémon and the guess game's progress, stays on the device in a Room database.
 
 ![MVVM layers: View, ViewModel, Model, with Retrofit and Room behind the repository](docs/architecture/out/mvvm.svg)
 
-Each screen has its own ViewModel, which keeps the screen state as `LiveData`, so it survives rotation, and does search, sort and type filtering in memory. All ViewModels go through one `PokemonRepository`, which maps PokeAPI DTOs and Room entities to domain models, so PokeAPI's JSON shape never reaches the UI. Caught state comes from Room as `LiveData`, so catching a Pokémon on one screen updates the other screens without them talking to each other.
+Each screen has its own ViewModel, which keeps the screen state as `LiveData`, so it survives rotation, and does search, sort and type filtering in memory. All ViewModels go through one `PokemonRepository`, which maps PokeAPI DTOs and Room entities to domain models, so PokeAPI's JSON shape never reaches the UI. The guess game also saves its round and streak through `GuessGameRepository`, and keeps its rules in `GuessGame`, a plain Kotlin class tested on its own. Caught state comes from Room as `LiveData`, so catching a Pokémon on one screen updates the other screens without them talking to each other.
 
 The rest of the architecture (C4 context, components, dynamic flows and deployment, Kruchten's 4+1 views, and how a Retrofit request and a Coil image load work) is in [`docs/architecture/`](docs/architecture/README.md).
 
