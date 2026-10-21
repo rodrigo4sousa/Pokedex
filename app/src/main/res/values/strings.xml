@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Pokedex</string>
+
+    <!-- Load errors (LoadError) -->
+    <string name="error_no_connection">No internet connection.</string>
+    <string name="error_server">PokeAPI isn\'t responding. Try again in a moment.</string>
+    <string name="error_unknown">Something went wrong.</string>
+    <string name="retry">Retry</string>
 </resources>
