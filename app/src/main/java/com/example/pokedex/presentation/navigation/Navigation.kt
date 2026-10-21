@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -23,13 +24,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.pokedex.R
+import com.example.pokedex.presentation.guess.GuessScreen
 import com.example.pokedex.presentation.home.HomeScreen
 import com.example.pokedex.presentation.pokedex.PokedexScreen
 import com.example.pokedex.presentation.pokemonDetail.PokemonDetailScreen
 
-private enum class BottomTab(val screen: Screen, val label: String, val icon: ImageVector) {
-    Home(Screen.HomeScreen, "Home", Icons.Filled.Home),
-    Pokedex(Screen.PokedexScreen, "Pokédex", Icons.Filled.Star)
+// The icon is read in composition, because a drawable resource can only be loaded there.
+private enum class BottomTab(val screen: Screen, val label: String, val icon: @Composable () -> ImageVector) {
+    Home(Screen.HomeScreen, "Home", { Icons.Filled.Home }),
+    Pokedex(Screen.PokedexScreen, "Pokédex", { Icons.Filled.Star }),
+    Guess(Screen.GuessScreen, "Guess", { ImageVector.vectorResource(R.drawable.ic_question_mark) })
 }
 
 @Composable
@@ -60,7 +65,7 @@ fun Navigation() {
                                     restoreState = true
                                 }
                             },
-                            icon = { Icon(tab.icon, contentDescription = null) },
+                            icon = { Icon(tab.icon(), contentDescription = null) },
                             label = { Text(tab.label) }
                         )
                     }
@@ -86,6 +91,14 @@ fun Navigation() {
             composable(Screen.PokedexScreen.route) {
                 PokedexScreen(
                     onPokemonClick = { name ->
+                        navController.navigate(Screen.PokemonDetailScreen.withArgs(name))
+                    }
+                )
+            }
+
+            composable(Screen.GuessScreen.route) {
+                GuessScreen(
+                    onOpenDetail = { name ->
                         navController.navigate(Screen.PokemonDetailScreen.withArgs(name))
                     }
                 )

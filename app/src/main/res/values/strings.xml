@@ -6,4 +6,19 @@
     <string name="error_server">PokeAPI isn\'t responding. Try again in a moment.</string>
     <string name="error_unknown">Something went wrong.</string>
     <string name="retry">Retry</string>
+
+    <!-- Guess the Pokémon -->
+    <string name="guess_title">Who\'s that Pokémon?</string>
+    <string name="guess_hidden_pokemon">Hidden Pokémon</string>
+    <string name="guess_name_label">Pokémon name</string>
+    <string name="guess_button">Guess</string>
+    <string name="guess_hearts_left">%1$d of %2$d hearts left</string>
+    <string name="guess_not_a_pokemon">“%1$s” isn\'t a Pokémon.</string>
+    <string name="guess_already_guessed">You already guessed %1$s.</string>
+    <string name="guess_wrong_guesses">Wrong guesses</string>
+    <string name="guess_streak">Streak: %1$d</string>
+    <string name="guess_won">You got it!</string>
+    <string name="guess_lost">Out of hearts!</string>
+    <string name="guess_come_back">Come back tomorrow for a new Pokémon.</string>
+    <string name="guess_open_details">Open details</string>
 </resources>
