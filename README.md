@@ -9,7 +9,7 @@ An Android Pokédex: browse every Pokémon from [PokeAPI](https://pokeapi.co/), 
 
 | Home | Type filter | Detail | Stats & matchups | My Pokédex | Guess | Guess result |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| ![Home: every Pokémon in a grid](docs/images/screenshot-home.png) | ![Filter side panel with the 18 types](docs/images/screenshot-filters.png) | ![Charizard detail: sprite, types, abilities](docs/images/screenshot-detail.png) | ![Charizard: base stats, type effectiveness, evolution chain](docs/images/screenshot-detail-matchups.png) | ![My Pokédex: caught Pokémon with counter](docs/images/screenshot-my-pokedex.png) | ![Guess: the daily Pokémon as a silhouette, one wrong guess, two hearts left](docs/images/screenshot-guess.png) | ![Guess result: Parasect revealed, streak 1](docs/images/screenshot-guess-result.png) |
+| ![Home: every Pokémon in a grid](docs/images/screenshot-home.png) | ![Filter side panel with the 18 types](docs/images/screenshot-filters.png) | ![Charizard detail: sprite, types, abilities](docs/images/screenshot-detail.png) | ![Charizard: base stats, type effectiveness, evolution chain](docs/images/screenshot-detail-matchups.png) | ![My Pokédex: caught Pokémon with counter](docs/images/screenshot-my-pokedex.png) | ![Guess: the daily Pokémon as a silhouette, one wrong guess, two hearts left](docs/images/screenshot-guess.png) | ![Guess result: Parasect revealed on its type colour, streak 1](docs/images/screenshot-guess-result.png) |
 
 ## Features
 

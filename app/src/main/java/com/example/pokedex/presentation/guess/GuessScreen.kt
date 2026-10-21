@@ -1,10 +1,13 @@
 package com.example.pokedex.presentation.guess
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -20,8 +25,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -36,9 +45,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -53,6 +64,7 @@ import coil3.compose.AsyncImage
 import com.example.pokedex.R
 import com.example.pokedex.domain.model.DailyRound
 import com.example.pokedex.presentation.components.ErrorMessage
+import com.example.pokedex.presentation.components.typeColor
 import java.util.Locale
 
 @Composable
@@ -77,12 +89,15 @@ fun GuessScreenContent(
     onRetry: () -> Unit,
     onOpenDetail: (String) -> Unit
 ) {
+    // Neutral theme colours while playing, so nothing hints at the answer; the type colour once revealed.
+    val revealedColor = (state as? GuessUiState.Finished)?.types?.firstOrNull()?.let { typeColor(it) }
+
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .systemBarsPadding()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 12.dp),
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -90,14 +105,16 @@ fun GuessScreenContent(
                 text = stringResource(R.string.guess_title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp)
             )
 
             when (state) {
                 GuessUiState.Loading -> Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(SILHOUETTE_SIZE),
+                        .height(HERO_HEIGHT),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
@@ -110,39 +127,49 @@ fun GuessScreenContent(
                 )
 
                 is GuessUiState.Playing -> {
-                    Silhouette(state.imageUrl, state.fallbackImageUrl, revealedName = null)
-                    Hearts(heartsLeft = state.heartsLeft)
-                    GuessInput(onGuess = onGuess)
-                    state.message?.let { GuessMessageText(it) }
-                    WrongGuesses(state.wrongGuesses)
-                    StreakText(state.streak)
+                    HeroSilhouette(state.imageUrl, state.fallbackImageUrl, revealedName = null, revealedColor = null)
+                    InfoCard {
+                        Hearts(heartsLeft = state.heartsLeft)
+                        GuessInput(onGuess = onGuess)
+                        state.message?.let { GuessMessageText(it) }
+                    }
+                    StatsRow(streak = state.streak, wrongGuesses = state.wrongGuesses, accent = null)
                 }
 
                 is GuessUiState.Finished -> {
                     val name = state.speciesName.toDisplayName()
-                    Silhouette(state.imageUrl, state.fallbackImageUrl, revealedName = name)
-                    Text(
-                        text = stringResource(if (state.won) R.string.guess_won else R.string.guess_lost),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = name,
-                        style = MaterialTheme.typography.displaySmall,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                    StreakText(state.streak)
-                    WrongGuesses(state.wrongGuesses)
-                    Text(
-                        text = stringResource(R.string.guess_come_back),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center
-                    )
-                    Button(onClick = { onOpenDetail(state.pokemonName) }) {
-                        Text(stringResource(R.string.guess_open_details))
+                    HeroSilhouette(state.imageUrl, state.fallbackImageUrl, revealedName = name, revealedColor = revealedColor)
+                    InfoCard {
+                        Text(
+                            text = stringResource(if (state.won) R.string.guess_won else R.string.guess_lost),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = name,
+                            style = MaterialTheme.typography.displaySmall,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            state.types.forEach { TypeBadge(it) }
+                        }
+                        Text(
+                            text = stringResource(R.string.guess_come_back),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center
+                        )
+                        Button(
+                            onClick = { onOpenDetail(state.pokemonName) },
+                            colors = revealedColor?.let {
+                                ButtonDefaults.buttonColors(containerColor = it, contentColor = it.contentColor())
+                            } ?: ButtonDefaults.buttonColors()
+                        ) {
+                            Text(stringResource(R.string.guess_open_details))
+                        }
                     }
+                    StatsRow(streak = state.streak, wrongGuesses = state.wrongGuesses, accent = revealedColor)
                 }
             }
         }
@@ -150,11 +177,42 @@ fun GuessScreenContent(
 }
 
 /**
- * The artwork with every visible pixel painted one colour until [revealedName] is set, then the
- * real artwork fades in. The description never names the Pokémon before the round ends.
+ * The silhouette on a rounded hero card, like the detail page's sprite. The card is a neutral theme
+ * colour during the round and turns to the Pokémon's type colour when it is revealed.
  */
 @Composable
-private fun Silhouette(imageUrl: String?, fallbackImageUrl: String?, revealedName: String?) {
+private fun HeroSilhouette(
+    imageUrl: String?,
+    fallbackImageUrl: String?,
+    revealedName: String?,
+    revealedColor: Color?
+) {
+    val neutral = MaterialTheme.colorScheme.surfaceContainerHighest
+    val background by animateColorAsState(
+        targetValue = revealedColor?.copy(alpha = 0.25f)?.compositeOver(MaterialTheme.colorScheme.surface) ?: neutral,
+        animationSpec = tween(durationMillis = 800),
+        label = "heroColor"
+    )
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(HERO_HEIGHT)
+            .clip(RoundedCornerShape(28.dp))
+            .background(background),
+        contentAlignment = Alignment.Center
+    ) {
+        // Black on a light card, light grey on a dark one, so the shape always stands out.
+        val tint = if (neutral.luminance() > 0.5f) Color.Black else Color(0xFFE6E6E6)
+        Silhouette(imageUrl, fallbackImageUrl, revealedName, tint)
+    }
+}
+
+/**
+ * The artwork with every visible pixel painted [tint] until [revealedName] is set, then the real
+ * artwork fades in. The description never names the Pokémon before the round ends.
+ */
+@Composable
+private fun Silhouette(imageUrl: String?, fallbackImageUrl: String?, revealedName: String?, tint: Color) {
     val revealed = revealedName != null
     var model by remember(imageUrl) { mutableStateOf(imageUrl) }
     val useFallback = { if (model != fallbackImageUrl && fallbackImageUrl != null) model = fallbackImageUrl }
@@ -163,11 +221,11 @@ private fun Silhouette(imageUrl: String?, fallbackImageUrl: String?, revealedNam
         animationSpec = tween(durationMillis = 800),
         label = "reveal"
     )
-    // Black on a light background, light grey on a dark one, so the shape always stands out.
-    val tint = if (MaterialTheme.colorScheme.surface.luminance() > 0.5f) Color.Black else Color(0xFFE6E6E6)
 
     Box(
-        modifier = Modifier.size(SILHOUETTE_SIZE),
+        modifier = Modifier
+            .size(SILHOUETTE_SIZE)
+            .padding(8.dp),
         contentAlignment = Alignment.Center
     ) {
         AsyncImage(
@@ -189,6 +247,99 @@ private fun Silhouette(imageUrl: String?, fallbackImageUrl: String?, revealedNam
                 .fillMaxSize()
                 .alpha(silhouetteAlpha)
         )
+    }
+}
+
+/** Same card style as the detail page's sections. */
+@Composable
+private fun InfoCard(content: @Composable ColumnScope.() -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            content = content
+        )
+    }
+}
+
+/** Streak and wrong guesses side by side; [accent] tints the streak card once the Pokémon is revealed. */
+@Composable
+private fun StatsRow(streak: Int, wrongGuesses: List<String>, accent: Color?) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        val streakDescription = stringResource(R.string.guess_streak, streak)
+        StatCard(
+            label = stringResource(R.string.guess_streak_label),
+            containerColor = accent?.copy(alpha = 0.25f)?.compositeOver(MaterialTheme.colorScheme.surface)
+                ?: MaterialTheme.colorScheme.secondaryContainer,
+            modifier = Modifier
+                .weight(1f)
+                .clearAndSetSemantics { contentDescription = streakDescription }
+        ) {
+            Text(
+                text = streak.toString(),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        StatCard(
+            label = stringResource(R.string.guess_wrong_guesses),
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            modifier = Modifier.weight(1f)
+        ) {
+            if (wrongGuesses.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.guess_no_wrong_guesses),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                wrongGuesses.forEach { name ->
+                    Text(text = name.toDisplayName(), style = MaterialTheme.typography.bodyLarge)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun StatCard(
+    label: String,
+    containerColor: Color,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp, horizontal = 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            // The card's own content colour, so the label stays readable on any container colour.
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge,
+                color = LocalContentColor.current.copy(alpha = 0.8f)
+            )
+            content()
+        }
     }
 }
 
@@ -247,30 +398,25 @@ private fun GuessMessageText(message: GuessMessage) {
     )
 }
 
+/** A type name on its type colour, like the chips on the detail page. */
 @Composable
-private fun WrongGuesses(names: List<String>) {
-    if (names.isEmpty()) return
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+private fun TypeBadge(type: String) {
+    val color = typeColor(type)
+    Surface(shape = CircleShape, color = color) {
         Text(
-            text = stringResource(R.string.guess_wrong_guesses),
+            text = type.toDisplayName(),
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            fontWeight = FontWeight.SemiBold,
+            color = color.contentColor(),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
         )
-        names.forEach { name ->
-            Text(text = name.toDisplayName(), style = MaterialTheme.typography.bodyLarge)
-        }
     }
 }
 
-@Composable
-private fun StreakText(streak: Int) {
-    Text(
-        text = stringResource(R.string.guess_streak, streak),
-        style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-}
+/** Black or white, whichever reads better on this colour. */
+private fun Color.contentColor(): Color = if (luminance() > 0.5f) Color.Black else Color.White
 
+private val HERO_HEIGHT = 280.dp
 private val SILHOUETTE_SIZE = 260.dp
 
 /** "mr-mime" -> "Mr Mime" */

@@ -17,6 +17,8 @@
     <string name="guess_already_guessed">You already guessed %1$s.</string>
     <string name="guess_wrong_guesses">Wrong guesses</string>
     <string name="guess_streak">Streak: %1$d</string>
+    <string name="guess_streak_label">Streak</string>
+    <string name="guess_no_wrong_guesses">None yet</string>
     <string name="guess_won">You got it!</string>
     <string name="guess_lost">Out of hearts!</string>
     <string name="guess_come_back">Come back tomorrow for a new Pokémon.</string>

@@ -77,7 +77,7 @@ class GuessPokemonSystemTest {
         compose.waitForText("You got it!")
         compose.onNodeWithText("Bulbasaur").assertExists()
         compose.onNodeWithContentDescription("Bulbasaur").assertExists()
-        compose.onNodeWithText("Streak: 1").assertExists()
+        compose.onNodeWithContentDescription("Streak: 1").assertExists()
         compose.onNodeWithText("Come back tomorrow for a new Pokémon.").assertExists()
 
         compose.onNodeWithText("Open details").performScrollTo().performClick()
@@ -99,7 +99,7 @@ class GuessPokemonSystemTest {
 
         compose.waitForText("Out of hearts!")
         compose.onNodeWithText("Bulbasaur").assertExists()
-        compose.onNodeWithText("Streak: 0").assertExists()
+        compose.onNodeWithContentDescription("Streak: 0").assertExists()
         compose.onNodeWithText("Come back tomorrow for a new Pokémon.").assertExists()
     }
 }

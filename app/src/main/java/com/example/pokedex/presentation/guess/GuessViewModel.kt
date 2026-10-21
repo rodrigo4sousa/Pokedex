@@ -42,6 +42,8 @@ sealed interface GuessUiState {
         val speciesName: String,
         /** The species' default Pokémon, which the detail page opens. */
         val pokemonName: String,
+        /** Type names in slot order; only revealed once the round is over, so they can't hint at the answer. */
+        val types: List<String>,
         val imageUrl: String?,
         val fallbackImageUrl: String?,
         val won: Boolean,
@@ -145,6 +147,7 @@ class GuessViewModel @Inject constructor(
             GuessUiState.Finished(
                 speciesName = current.speciesName,
                 pokemonName = shown.name,
+                types = shown.types,
                 imageUrl = imageUrl,
                 fallbackImageUrl = fallbackImageUrl,
                 won = current.result == RoundResult.Won,
