@@ -1,0 +1,34 @@
+' C4 Dynamic - Browse the full list and filter by type (Home)
+' Version 1.0 - 2026-10-19 - reflects the current working tree
+' Search and sort (Number / Name) run inside HomeViewModel on the loaded list; no network call.
+' Several selected types combine with OR. PokemonApi is not drawn as a box; it appears in the technology of steps 4 and 9.
+@startuml dynamic-browse-and-filter
+!include <C4/C4_Dynamic>
+!include ../style.puml
+
+LAYOUT_LEFT_RIGHT()
+
+title Dynamic - Browse and filter by type
+
+Person(user, "User")
+
+Container_Boundary(androidApp, "Android App") {
+    Component(homeScreen, "HomeScreen", "Compose, Coil")
+    Component(homeVm, "HomeViewModel", "ViewModel, LiveData")
+    Component(repository, "PokemonRepository", "Hilt @Singleton")
+}
+
+System_Ext(pokeApi, "PokeAPI")
+System_Ext(spritesHost, "PokeAPI Sprites (GitHub raw)")
+
+Rel(user, homeScreen, $plain("Opens the app"), "Touch UI", $index="1")
+Rel(homeScreen, homeVm, $plain("Observes the list"), "LiveData", $index="2")
+Rel(homeVm, repository, $plain("Loads all Pokémon"), "coroutine", $index="3")
+Rel(repository, pokeApi, $plain("Gets full list"), "PokemonApi, GET pokemon?limit=100000", $index="4")
+Rel(homeScreen, spritesHost, $plain("Loads card sprites"), "Coil, HTTPS", $index="5")
+Rel(user, homeScreen, $plain("Selects a type"), "Filter side panel", $index="6")
+Rel(homeScreen, homeVm, $plain("Toggles type filter"), "toggleType()", $index="7")
+Rel(homeVm, repository, $plain("Gets type members"), "coroutine", $index="8")
+Rel(repository, pokeApi, $plain("Gets the type"), "GET type/{name}, cached in memory", $index="9")
+Rel(homeVm, homeScreen, $plain("Emits filtered list"), "LiveData", $index="10")
+@enduml

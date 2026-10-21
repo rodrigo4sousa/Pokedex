@@ -1,0 +1,30 @@
+' C4 Dynamic - Catch / release a Pokémon (from the Home grid)
+' Version 1.0 - 2026-10-19 - reflects the current working tree
+' The same path runs from PokedexScreen (release only) and PokemonDetailScreen through their own ViewModels.
+' Every ViewModel that observes getCaught() / isCaught() gets the new data from Room, so all screens stay in sync.
+' CaughtPokemonDao is not drawn as a box; it appears in the technology of step 4.
+@startuml dynamic-catch-release-pokemon
+!include <C4/C4_Dynamic>
+!include ../style.puml
+
+LAYOUT_LEFT_RIGHT()
+
+title Dynamic - Catch / release a Pokémon
+
+Person(user, "User")
+
+Container_Boundary(androidApp, "Android App") {
+    Component(homeScreen, "HomeScreen", "Compose, Coil")
+    Component(homeVm, "HomeViewModel", "ViewModel, LiveData")
+    Component(repository, "PokemonRepository", "Hilt @Singleton")
+}
+
+ContainerDb(localDb, "Local Database", "Room / SQLite")
+
+Rel(user, homeScreen, $plain("Taps the star"), "Touch UI", $index="1")
+Rel(homeScreen, homeVm, $plain("Toggles caught state"), "toggleCaught()", $index="2")
+Rel(homeVm, repository, $plain("Catches or releases"), "coroutine", $index="3")
+Rel(repository, localDb, $plain("Inserts or deletes row"), "CaughtPokemonDao, Room", $index="4")
+Rel(localDb, homeVm, $plain("Emits caught list"), "Room LiveData", $index="5")
+Rel(homeVm, homeScreen, $plain("Updates the star"), "LiveData", $index="6")
+@enduml

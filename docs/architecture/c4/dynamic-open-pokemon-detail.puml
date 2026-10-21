@@ -1,0 +1,40 @@
+' C4 Dynamic - Open Pokémon detail
+' Version 1.1 - 2026-10-20 - reflects the current working tree
+' Steps 5a-5c start in parallel once the Pokémon has loaded (PokemonDetailViewModel.loadPokemon);
+' if 5b or 5c fails, that section stays hidden.
+' PokemonApi (Retrofit) and CaughtPokemonDao are not drawn as boxes; they appear in the technology of steps 4 and 6a-6c.
+' Step 7 covers all sprites: the main sprite URLs come in the PokeAPI response, the evolution ones are built
+' in the code; both point to PokeAPI/sprites on GitHub raw. The cry plays only when the user taps it, so it is
+' not part of this flow (see 4plus1/scenarios-view-detail.puml).
+@startuml dynamic-open-pokemon-detail
+!include <C4/C4_Dynamic>
+!include ../style.puml
+
+LAYOUT_LEFT_RIGHT()
+
+title Dynamic - Open Pokémon detail
+
+Person(user, "User")
+
+Container_Boundary(androidApp, "Android App") {
+    Component(detailScreen, "PokemonDetailScreen", "Compose, Coil, MediaPlayer")
+    Component(detailVm, "PokemonDetailViewModel", "ViewModel, LiveData")
+    Component(repository, "PokemonRepository", "Hilt @Singleton")
+}
+
+ContainerDb(localDb, "Local Database", "Room / SQLite")
+System_Ext(pokeApi, "PokeAPI")
+System_Ext(spritesHost, "PokeAPI Sprites (GitHub raw)")
+
+Rel(user, detailScreen, $plain("Opens a Pokémon"), "Touch UI, route arg: name", $index="1")
+Rel(detailScreen, detailVm, $plain("Observes state"), "LiveData", $index="2")
+Rel(detailVm, repository, $plain("Loads Pokémon"), "coroutine", $index="3")
+Rel(repository, pokeApi, $plain("Gets Pokémon"), "PokemonApi, GET pokemon/{name}", $index="4")
+Rel(detailVm, repository, $plain("Watches caught state"), "LiveData", $index="5a")
+Rel(detailVm, repository, $plain("Loads evolution chain"), "coroutine", $index="5b")
+Rel(detailVm, repository, $plain("Loads type matchups"), "coroutine", $index="5c")
+Rel(repository, localDb, $plain("Queries caught_pokemon"), "CaughtPokemonDao, Room", $index="6a")
+Rel(repository, pokeApi, $plain("Gets species, chain"), "GET pokemon-species/{name}, chain URL", $index="6b")
+Rel(repository, pokeApi, $plain("Gets each type"), "GET type/{t}, in parallel", $index="6c")
+Rel(detailScreen, spritesHost, $plain("Loads the sprites"), "Coil, HTTPS", $index="7")
+@enduml

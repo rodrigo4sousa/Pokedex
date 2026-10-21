@@ -1,0 +1,43 @@
+' C4 Level 3 - Components of the Android App, part 1 of 2: UI layer
+' Version 1.2 - 2026-10-20 - reflects the current working tree
+' Split from 03-components-android-app.puml (more than ~10 components per diagram); part 2 is
+' 03-components-android-app-data.puml. PokemonRepository and the ViewModels appear in both.
+' Navigation lives in presentation.navigation. Shared composables in presentation.components (PokemonGrid,
+' PokemonSearchBar, SortChips, FilterSidePanel, CatchStarButton, TypeColors) are part of the screens, not drawn.
+' PokemonDetailScreen streams cries with MediaPlayer from PokeAPI Cries (GitHub raw); other containers are not drawn at this level.
+@startuml 03-components-android-app-ui
+!include <C4/C4_Component>
+!include ../style.puml
+
+LAYOUT_TOP_DOWN()
+
+title Components - Android App (UI layer)
+
+Container_Boundary(androidApp, "Android App") {
+    Component(mainActivity, "MainActivity", "ComponentActivity", "Single Activity; Hilt entry point")
+    Component(navigation, "Navigation", "Navigation Compose", "NavHost and Home / Pokédex bottom bar")
+
+    Component(homeScreen, "HomeScreen", "Compose, Coil", "Full list: search, sort, type filter")
+    Component(pokedexScreen, "PokedexScreen", "Compose, Coil", "Caught list with counter")
+    Component(detailScreen, "PokemonDetailScreen", "Compose, Coil, MediaPlayer", "Stats, sprites, cry, evolutions, type matchups")
+
+    Component(homeVm, "HomeViewModel", "ViewModel, LiveData")
+    Component(pokedexVm, "PokedexViewModel", "ViewModel, LiveData")
+    Component(detailVm, "PokemonDetailViewModel", "ViewModel, LiveData")
+
+    Component(repository, "PokemonRepository", "Hilt @Singleton", "Single data access point; in-memory type cache")
+}
+
+Rel(mainActivity, navigation, $plain("Sets content"), "setContent")
+Rel(navigation, homeScreen, $plain("Shows Home tab"), "Navigation Compose")
+Rel(navigation, pokedexScreen, $plain("Shows Pokédex tab"), "Navigation Compose")
+Rel(navigation, detailScreen, $plain("Opens Pokémon detail"), "route arg: name")
+
+Rel(homeScreen, homeVm, $plain("Observes and calls"), "LiveData")
+Rel(pokedexScreen, pokedexVm, $plain("Observes and calls"), "LiveData")
+Rel(detailScreen, detailVm, $plain("Observes and calls"), "LiveData")
+
+Rel(homeVm, repository, $plain("Loads and updates data"), "coroutines, LiveData")
+Rel(pokedexVm, repository, $plain("Loads and updates data"), "coroutines, LiveData")
+Rel(detailVm, repository, $plain("Loads and updates data"), "coroutines, LiveData")
+@enduml

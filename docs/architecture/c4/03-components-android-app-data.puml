@@ -1,0 +1,44 @@
+' C4 Level 3 - Components of the Android App, part 2 of 2: data layer
+' Version 1.2 - 2026-10-20
+' Split from 03-components-android-app.puml (more than ~10 components per diagram); part 1 is
+' 03-components-android-app-ui.puml. PokemonRepository and the ViewModels appear in both.
+' Hilt provides PokemonApi (NetworkModule) and the database and DAO (DatabaseModule); PokemonRepository
+' gets both through its @Inject constructor. NetworkModule also provides the OkHttpClient and Retrofit
+' instances it builds PokemonApi from; they are library objects, not drawn as components.
+' PokemonApi returns DTOs (data.remote.dto) and the DAO returns entities; PokemonRepository converts both with
+' the mappers (data.mapper) and only hands domain models (domain.model) to the ViewModels.
+@startuml 03-components-android-app-data
+!include <C4/C4_Component>
+!include ../style.puml
+
+LAYOUT_TOP_DOWN()
+
+title Components - Android App (data layer)
+
+Container_Boundary(androidApp, "Android App") {
+    Component(homeVm, "HomeViewModel", "ViewModel, LiveData")
+    Component(pokedexVm, "PokedexViewModel", "ViewModel, LiveData")
+    Component(detailVm, "PokemonDetailViewModel", "ViewModel, LiveData")
+
+    Component(repository, "PokemonRepository", "Hilt @Singleton", "Single data access point; in-memory type cache")
+
+    Component(mappers, "Mappers", "Kotlin functions", "DTOs and entities to domain models")
+    Component(pokemonApi, "PokemonApi", "Retrofit + Gson", "PokeAPI endpoints; returns DTOs")
+    Component(networkModule, "NetworkModule", "Hilt module", "Provides OkHttp, Retrofit and PokemonApi")
+    Component(dao, "CaughtPokemonDao", "Room DAO", "caught_pokemon queries")
+    Component(database, "PokedexDatabase", "Room database", "pokedex.db, schema v1 (exported)")
+    Component(databaseModule, "DatabaseModule", "Hilt module", "Provides database and DAO")
+}
+
+Rel(homeVm, repository, $plain("Loads and updates data"), "coroutines, LiveData")
+Rel(pokedexVm, repository, $plain("Loads and updates data"), "coroutines, LiveData")
+Rel(detailVm, repository, $plain("Loads and updates data"), "coroutines, LiveData")
+
+Rel(repository, mappers, $plain("Converts to domain"), "toDomain(), toPokemonSummary()")
+
+Rel(repository, pokemonApi, $plain("Fetches Pokémon data"), "suspend calls, Retrofit")
+Rel(repository, dao, $plain("Stores caught Pokémon"), "suspend calls, LiveData")
+Rel(networkModule, pokemonApi, $plain("Provides API"), "Hilt @Provides")
+Rel(databaseModule, dao, $plain("Provides DAO"), "Hilt @Provides")
+Rel(databaseModule, database, $plain("Builds database"), "Room.databaseBuilder")
+@enduml

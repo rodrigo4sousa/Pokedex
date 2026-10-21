@@ -1,0 +1,30 @@
+' C4 Level 2 - Containers
+' Version 1.2 - 2026-10-20 - reflects the current working tree
+' Sprites and cries are served from GitHub raw (raw.githubusercontent.com): sprites from the PokeAPI/sprites
+' repository (list and evolution URLs are built in the code; detail URLs come in the PokeAPI response), cries
+' from PokeAPI/cries (URLs in the PokeAPI `pokemon` response). Confirmed from the recorded fixtures, 2026-10-20.
+@startuml 02-containers
+!include <C4/C4_Container>
+!include ../style.puml
+
+LAYOUT_LEFT_RIGHT()
+
+title Containers - Pokédex App
+
+Person(user, "User")
+
+System_Boundary(pokedexApp, "Pokédex App") {
+    Container(androidApp, "Android App", "Kotlin, Jetpack Compose, Hilt")
+    ContainerDb(localDb, "Local Database", "Room / SQLite")
+}
+
+System_Ext(pokeApi, "PokeAPI")
+System_Ext(spritesHost, "PokeAPI Sprites (GitHub raw)")
+System_Ext(criesHost, "PokeAPI Cries (GitHub raw)")
+
+Rel(user, androidApp, $plain("Browses and catches Pokémon"), "Touch UI")
+Rel(androidApp, pokeApi, $plain("Reads Pokémon data"), "Retrofit, HTTPS/JSON")
+Rel(androidApp, spritesHost, $plain("Loads sprite images"), "Coil, HTTPS")
+Rel(androidApp, criesHost, $plain("Streams Pokémon cries"), "MediaPlayer, HTTPS")
+Rel(androidApp, localDb, $plain("Stores caught Pokémon"), "Room DAO")
+@enduml

@@ -1,0 +1,30 @@
+' C4 Deployment - planned (Play Store publication and CI)
+' Version 1.0 - 2026-10-19
+' Dashed = planned, not built yet. Solid = exists today (see 04-deployment.puml).
+' The source repository exists (git remote origin = github.com/rodrigo4sousa/Pokedex); there is no CI config in it yet.
+' The CI tool is not chosen yet.
+' The release artifact (APK or App Bundle) and its trigger will be defined with CI.
+' Update both deployment diagrams when a planned item becomes real.
+@startuml 04-deployment-planned
+!include <C4/C4_Deployment>
+!include ../style.puml
+
+SetDefaultLegendEntries("")
+LAYOUT_LEFT_RIGHT()
+
+title Deployment - planned
+
+Deployment_Node(repoNode, "GitHub repository", "rodrigo4sousa/Pokedex")
+Deployment_Node(ciNode, "CI service", "Tool TBD", $tags="planned")
+Deployment_Node(playStoreNode, "Google Play Store", "Distribution", $tags="planned")
+
+Deployment_Node(device, "Android device", "Android 12+ (minSdk 31)") {
+    Container(androidApp, "Android App", "Kotlin, Jetpack Compose, Hilt")
+}
+
+Rel(repoNode, ciNode, $plain("Triggers a build"), "TBD", $tags="planned")
+Rel(ciNode, playStoreNode, $plain("Publishes a release"), "TBD", $tags="planned")
+Rel(playStoreNode, androidApp, $plain("Installs and updates"), "Play Store", $tags="planned")
+
+SHOW_LEGEND()
+@enduml

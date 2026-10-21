@@ -1,0 +1,26 @@
+' C4 Level 1 - System Context
+' Version 1.2 - 2026-10-20 - reflects the current working tree
+' Sprites and cries are served from GitHub raw (raw.githubusercontent.com): sprites from the PokeAPI/sprites
+' repository (list and evolution URLs are built in the code; detail URLs come in the PokeAPI response), cries
+' from PokeAPI/cries (URLs in the PokeAPI `pokemon` response). Confirmed from the recorded fixtures, 2026-10-20.
+@startuml 01-context
+!include <C4/C4_Context>
+!include ../style.puml
+
+LAYOUT_LEFT_RIGHT()
+
+title System Context - Pokédex App
+
+Person(user, "User")
+
+System(pokedexApp, "Pokédex App")
+
+System_Ext(pokeApi, "PokeAPI")
+System_Ext(spritesHost, "PokeAPI Sprites (GitHub raw)")
+System_Ext(criesHost, "PokeAPI Cries (GitHub raw)")
+
+Rel(user, pokedexApp, $plain("Browses and catches Pokémon"))
+Rel(pokedexApp, pokeApi, $plain("Reads Pokémon data"))
+Rel(pokedexApp, spritesHost, $plain("Loads sprite images"))
+Rel(pokedexApp, criesHost, $plain("Streams Pokémon cries"))
+@enduml
