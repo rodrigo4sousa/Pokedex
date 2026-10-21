@@ -76,6 +76,7 @@ dependencies {
     testImplementation(libs.okhttp.mockwebserver)
 
     // Instrumented tests (src/androidTest): device integration and system
+    androidTestImplementation(project(":testing"))
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
