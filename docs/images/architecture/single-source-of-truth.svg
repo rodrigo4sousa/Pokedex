@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="400" viewBox="0 0 880 400" font-family="'Google Sans', Roboto, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title>Single source of truth: a catch is written to Room, and Room updates every screen</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#3c4043"/>
+    </marker>
+    <marker id="arrow-pink" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#d6336c"/>
+    </marker>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect width="880" height="400" rx="24" fill="#ffffff"/>
+
+  <!-- Screens -->
+  <rect x="24" y="24" width="250" height="352" rx="20" fill="#e8f5dc" stroke="#7ac74c" stroke-width="2"/>
+  <text x="48" y="58" font-size="18" font-weight="700" fill="#3d7a1c">Screens + ViewModels</text>
+  <g filter="url(#shadow)">
+    <rect x="48" y="84" width="202" height="72" rx="16" fill="#ffffff"/>
+    <rect x="48" y="176" width="202" height="72" rx="16" fill="#ffffff"/>
+    <rect x="48" y="268" width="202" height="88" rx="16" fill="#ffffff" stroke="#f7d02c" stroke-width="3"/>
+  </g>
+  <text x="80" y="126" font-size="16" font-weight="700" fill="#202124">Home</text>
+  <text x="80" y="218" font-size="16" font-weight="700" fill="#202124">My Pokédex</text>
+  <text x="80" y="306" font-size="16" font-weight="700" fill="#202124">Detail</text>
+  <text x="80" y="330" font-size="13" fill="#5f6368">user taps the star</text>
+  <!-- stars -->
+  <path id="star" d="M0,-11 L3.2,-3.5 L11,-3.4 L4.9,1.6 L6.9,9.4 L0,5 L-6.9,9.4 L-4.9,1.6 L-11,-3.4 L-3.2,-3.5 z" fill="#f7d02c" stroke="#c79c00" transform="translate(222,120)"/>
+  <use href="#star" transform="translate(0,92)"/>
+  <use href="#star" transform="translate(0,192)"/>
+
+  <!-- Repository -->
+  <g filter="url(#shadow)">
+    <rect x="330" y="252" width="200" height="104" rx="18" fill="#e0eafc" stroke="#6390f0" stroke-width="2"/>
+  </g>
+  <text x="430" y="296" font-size="16" font-weight="700" fill="#2a5bbf" text-anchor="middle">PokemonRepository</text>
+  <text x="430" y="320" font-size="13" fill="#3f5684" text-anchor="middle">catchPokemon()</text>
+
+  <!-- Room -->
+  <g filter="url(#shadow)">
+    <rect x="610" y="84" width="246" height="272" rx="20" fill="#fde0ea" stroke="#f95587" stroke-width="2"/>
+  </g>
+  <text x="733" y="140" font-size="18" font-weight="700" fill="#8f1f45" text-anchor="middle">Room</text>
+  <text x="733" y="164" font-size="13" fill="#8f1f45" text-anchor="middle">caught_pokemon</text>
+  <rect x="646" y="186" width="174" height="62" rx="14" fill="#ffffff"/>
+  <text x="733" y="212" font-size="15" font-weight="700" fill="#202124" text-anchor="middle">single source</text>
+  <text x="733" y="232" font-size="15" font-weight="700" fill="#202124" text-anchor="middle">of truth</text>
+
+  <!-- 1. catch, 2. insert -->
+  <line x1="256" y1="312" x2="324" y2="312" stroke="#3c4043" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <circle cx="290" cy="290" r="13" fill="#3c4043"/>
+  <text x="290" y="295" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+  <line x1="536" y1="312" x2="604" y2="312" stroke="#3c4043" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <circle cx="570" cy="290" r="13" fill="#3c4043"/>
+  <text x="570" y="295" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">2</text>
+  <text x="570" y="340" font-size="12" fill="#5f6368" text-anchor="middle">insert</text>
+
+  <!-- 3. LiveData back to every screen -->
+  <path d="M604,120 C480,100 380,100 256,120" fill="none" stroke="#d6336c" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#arrow-pink)"/>
+  <path d="M604,180 C480,200 380,200 256,212" fill="none" stroke="#d6336c" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#arrow-pink)"/>
+  <path d="M604,236 C560,250 300,240 256,284" fill="none" stroke="#d6336c" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#arrow-pink)"/>
+  <circle cx="430" cy="166" r="13" fill="#d6336c"/>
+  <text x="430" y="171" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">3</text>
+  <text x="430" y="82" font-size="13" font-weight="700" fill="#d6336c" text-anchor="middle">LiveData updates every screen</text>
+</svg>

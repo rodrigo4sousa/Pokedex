@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="560" viewBox="0 0 880 560" font-family="'Google Sans', Roboto, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title>Pokédex architecture overview: UI layer, optional domain layer, data layer</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#3c4043"/>
+    </marker>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect width="880" height="560" rx="24" fill="#ffffff"/>
+
+  <!-- UI layer -->
+  <rect x="32" y="32" width="660" height="150" rx="20" fill="#e8f5dc" stroke="#7ac74c" stroke-width="2"/>
+  <text x="56" y="66" font-size="20" font-weight="700" fill="#3d7a1c">UI layer</text>
+  <text x="56" y="88" font-size="13" fill="#4f6b3f">presentation/</text>
+  <g filter="url(#shadow)">
+    <rect x="200" y="56" width="220" height="104" rx="16" fill="#ffffff"/>
+    <rect x="448" y="56" width="220" height="104" rx="16" fill="#ffffff"/>
+  </g>
+  <text x="310" y="94" font-size="17" font-weight="700" fill="#202124" text-anchor="middle">Screens</text>
+  <text x="310" y="118" font-size="13" fill="#5f6368" text-anchor="middle">Jetpack Compose</text>
+  <text x="310" y="140" font-size="13" fill="#5f6368" text-anchor="middle">Home · Pokédex · Detail · Guess</text>
+  <text x="558" y="94" font-size="17" font-weight="700" fill="#202124" text-anchor="middle">ViewModels</text>
+  <text x="558" y="118" font-size="13" fill="#5f6368" text-anchor="middle">one per screen</text>
+  <text x="558" y="140" font-size="13" fill="#5f6368" text-anchor="middle">UI state as LiveData</text>
+
+  <!-- Domain layer (optional) -->
+  <rect x="32" y="214" width="660" height="118" rx="20" fill="#fff6d1" stroke="#f7d02c" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="56" y="248" font-size="20" font-weight="700" fill="#8a6d00">Domain layer</text>
+  <text x="56" y="270" font-size="13" fill="#7a6a2a">optional · domain/</text>
+  <g filter="url(#shadow)">
+    <rect x="200" y="236" width="220" height="76" rx="16" fill="#ffffff"/>
+    <rect x="448" y="236" width="220" height="76" rx="16" fill="#ffffff"/>
+  </g>
+  <text x="310" y="268" font-size="17" font-weight="700" fill="#202124" text-anchor="middle">GuessGame</text>
+  <text x="310" y="292" font-size="13" fill="#5f6368" text-anchor="middle">the game's rules, plain Kotlin</text>
+  <text x="558" y="268" font-size="17" font-weight="700" fill="#202124" text-anchor="middle">Domain models</text>
+  <text x="558" y="292" font-size="13" fill="#5f6368" text-anchor="middle">Pokemon · PokemonSummary · …</text>
+
+  <!-- Data layer -->
+  <rect x="32" y="364" width="660" height="164" rx="20" fill="#e0eafc" stroke="#6390f0" stroke-width="2"/>
+  <text x="56" y="398" font-size="20" font-weight="700" fill="#2a5bbf">Data layer</text>
+  <text x="56" y="420" font-size="13" fill="#3f5684">data/</text>
+  <g filter="url(#shadow)">
+    <rect x="200" y="386" width="220" height="64" rx="16" fill="#ffffff"/>
+    <rect x="448" y="386" width="220" height="64" rx="16" fill="#ffffff"/>
+  </g>
+  <text x="310" y="424" font-size="16" font-weight="700" fill="#202124" text-anchor="middle">PokemonRepository</text>
+  <text x="558" y="424" font-size="16" font-weight="700" fill="#202124" text-anchor="middle">GuessGameRepository</text>
+  <rect x="200" y="466" width="220" height="42" rx="21" fill="#fde5d3" stroke="#ee8130" stroke-width="1.5"/>
+  <text x="310" y="492" font-size="14" fill="#8a3d00" text-anchor="middle">Retrofit → PokeAPI</text>
+  <rect x="448" y="466" width="220" height="42" rx="21" fill="#fde0ea" stroke="#f95587" stroke-width="1.5"/>
+  <text x="558" y="492" font-size="14" fill="#8f1f45" text-anchor="middle">Room → pokedex.db</text>
+
+  <!-- Unidirectional data flow -->
+  <line x1="752" y1="80" x2="752" y2="470" stroke="#3c4043" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <line x1="822" y1="470" x2="822" y2="80" stroke="#3c4043" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <rect x="722" y="236" width="60" height="76" rx="12" fill="#ffffff"/>
+  <text x="752" y="268" font-size="15" font-weight="700" fill="#202124" text-anchor="middle">events</text>
+  <text x="752" y="290" font-size="12" fill="#5f6368" text-anchor="middle">go down</text>
+  <rect x="792" y="236" width="60" height="76" rx="12" fill="#ffffff"/>
+  <text x="822" y="268" font-size="15" font-weight="700" fill="#202124" text-anchor="middle">state</text>
+  <text x="822" y="290" font-size="12" fill="#5f6368" text-anchor="middle">goes up</text>
+</svg>

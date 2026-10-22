@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="420" viewBox="0 0 880 420" font-family="'Google Sans', Roboto, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title>UI layer: the screen sends events to its ViewModel and draws the UI state it gets back</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#3c4043"/>
+    </marker>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect width="880" height="420" rx="24" fill="#ffffff"/>
+  <rect x="24" y="24" width="590" height="372" rx="20" fill="#e8f5dc" stroke="#7ac74c" stroke-width="2"/>
+  <text x="48" y="58" font-size="20" font-weight="700" fill="#3d7a1c">UI layer</text>
+
+  <!-- Phone with a Pokémon grid -->
+  <g filter="url(#shadow)">
+    <rect x="64" y="84" width="150" height="270" rx="22" fill="#202124"/>
+  </g>
+  <rect x="74" y="98" width="130" height="242" rx="14" fill="#f8f9fa"/>
+  <rect x="84" y="110" width="110" height="18" rx="9" fill="#e8eaed"/>
+  <g fill="#ffffff" stroke="#dadce0">
+    <rect x="84" y="138" width="52" height="60" rx="10"/>
+    <rect x="142" y="138" width="52" height="60" rx="10"/>
+    <rect x="84" y="206" width="52" height="60" rx="10"/>
+    <rect x="142" y="206" width="52" height="60" rx="10"/>
+    <rect x="84" y="274" width="52" height="56" rx="10"/>
+    <rect x="142" y="274" width="52" height="56" rx="10"/>
+  </g>
+  <circle cx="110" cy="164" r="14" fill="#7ac74c"/>
+  <circle cx="168" cy="164" r="14" fill="#ee8130"/>
+  <circle cx="110" cy="232" r="14" fill="#6390f0"/>
+  <circle cx="168" cy="232" r="14" fill="#f7d02c"/>
+  <circle cx="110" cy="298" r="14" fill="#a98ff3"/>
+  <circle cx="168" cy="298" r="14" fill="#f95587"/>
+  <text x="139" y="380" font-size="15" font-weight="700" fill="#202124" text-anchor="middle">Screen (Compose)</text>
+
+  <!-- ViewModel -->
+  <g filter="url(#shadow)">
+    <rect x="390" y="130" width="196" height="150" rx="18" fill="#ffffff"/>
+  </g>
+  <text x="488" y="168" font-size="18" font-weight="700" fill="#202124" text-anchor="middle">ViewModel</text>
+  <text x="488" y="196" font-size="13" fill="#5f6368" text-anchor="middle">holds the screen's state</text>
+  <text x="488" y="216" font-size="13" fill="#5f6368" text-anchor="middle">survives rotation</text>
+  <text x="488" y="236" font-size="13" fill="#5f6368" text-anchor="middle">search · sort · filter</text>
+  <text x="488" y="256" font-size="13" fill="#5f6368" text-anchor="middle">in memory</text>
+
+  <!-- Events and state -->
+  <path d="M220,160 C290,130 320,130 384,160" fill="none" stroke="#3c4043" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <rect x="226" y="70" width="156" height="48" rx="16" fill="#ffffff"/>
+  <text x="304" y="90" font-size="13" font-weight="700" fill="#202124" text-anchor="middle">events</text>
+  <text x="304" y="108" font-size="12" fill="#4f6b3f" text-anchor="middle">tap · search · catch</text>
+  <path d="M384,250 C320,280 290,280 220,250" fill="none" stroke="#3c4043" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <rect x="216" y="290" width="176" height="48" rx="16" fill="#ffffff"/>
+  <text x="304" y="310" font-size="13" font-weight="700" fill="#202124" text-anchor="middle">UI state</text>
+  <text x="304" y="328" font-size="12" fill="#4f6b3f" text-anchor="middle">LiveData → observeAsState</text>
+
+  <!-- Data layer -->
+  <rect x="660" y="140" width="196" height="130" rx="18" fill="#e0eafc" stroke="#6390f0" stroke-width="2"/>
+  <text x="758" y="184" font-size="17" font-weight="700" fill="#2a5bbf" text-anchor="middle">Data layer</text>
+  <text x="758" y="210" font-size="13" fill="#3f5684" text-anchor="middle">PokemonRepository</text>
+  <text x="758" y="230" font-size="13" fill="#3f5684" text-anchor="middle">GuessGameRepository</text>
+  <line x1="592" y1="190" x2="652" y2="190" stroke="#3c4043" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <line x1="652" y1="230" x2="592" y2="230" stroke="#3c4043" stroke-width="2.5" marker-end="url(#arrow)"/>
+</svg>
