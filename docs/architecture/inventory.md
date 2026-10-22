@@ -37,7 +37,7 @@ App module `:app`, package `com.example.pokedex` (test-only module `:testing` de
 | `presentation/pokemonDetail` | `PokemonDetailScreen`, `PokemonDetailViewModel` |
 | `presentation/guess` | `GuessScreen`, `GuessViewModel` (+ `GuessUiState`, `GuessMessage`) |
 | `presentation/components` | `PokemonGrid`, `PokemonSearchBar`, `SortChips`, `FilterSidePanel`, `CatchStarButton`, `TypeColors`, `ErrorMessage` (message + Retry), `LoadError` (no connection / server / unknown) |
-| `ui/theme` | Compose theme |
+| `presentation/theme` | Compose theme (`PokedexTheme`, colors, typography) |
 
 ### Test-only module `:testing`
 

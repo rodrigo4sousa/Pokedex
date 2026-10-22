@@ -23,7 +23,6 @@ left to right direction
 
 package ":app module" {
     package "com.example.pokedex"
-    package "ui.theme"
     package "presentation" {
         package "navigation"
         package "home"
@@ -31,6 +30,7 @@ package ":app module" {
         package "pokemonDetail"
         package "guess"
         package "components"
+        package "theme"
     }
     package "domain.model"
     package "domain.game"
@@ -47,7 +47,7 @@ package ":testing module (test only)" {
 }
 
 "com.example.pokedex" --> "navigation" : Navigation
-"com.example.pokedex" --> "ui.theme" : PokedexTheme
+"com.example.pokedex" --> "theme" : PokedexTheme
 
 "navigation" --> "home" : HomeScreen
 "navigation" --> "pokedex" : PokedexScreen
