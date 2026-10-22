@@ -29,15 +29,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.example.pokedex.domain.model.PokemonSummary
+import com.example.pokedex.presentation.navigation.sharedSprite
+import com.example.pokedex.presentation.navigation.sharedSpriteBackground
+import com.example.pokedex.presentation.navigation.spriteKey
 
 @Composable
 fun PokemonGrid(
     pokemons: List<PokemonSummary>,
     caughtNames: Set<String>,
     gridState: LazyGridState,
-    onPokemonClick: (String) -> Unit,
+    onPokemonClick: (PokemonSummary) -> Unit,
     onToggleCaught: (PokemonSummary) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** Which screen the grid is on; it keys the sprite that flies to the detail page. */
+    origin: String? = null
 ) {
     LazyVerticalGrid(
         state = gridState,
@@ -51,8 +56,9 @@ fun PokemonGrid(
             PokemonCard(
                 pokemon = pokemon,
                 isCaught = pokemon.name in caughtNames,
-                onClick = { onPokemonClick(pokemon.name) },
-                onToggleCaught = { onToggleCaught(pokemon) }
+                onClick = { onPokemonClick(pokemon) },
+                onToggleCaught = { onToggleCaught(pokemon) },
+                spriteKey = spriteKey(origin, pokemon.id)
             )
         }
     }
@@ -64,6 +70,7 @@ private fun PokemonCard(
     isCaught: Boolean,
     onClick: () -> Unit,
     onToggleCaught: () -> Unit,
+    spriteKey: String?,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -83,6 +90,7 @@ private fun PokemonCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(130.dp)
+                    .sharedSpriteBackground(spriteKey)
                     .clip(RoundedCornerShape(18.dp))
                     .background(MaterialTheme.colorScheme.surfaceContainerHighest),
                 contentAlignment = Alignment.Center
@@ -94,6 +102,7 @@ private fun PokemonCard(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(8.dp)
+                        .sharedSprite(spriteKey)
                 )
                 CatchStarButton(
                     isCaught = isCaught,

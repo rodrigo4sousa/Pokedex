@@ -1,7 +1,7 @@
 # Inventory
 
 What the code contains, read from the build files, the manifest, the DI modules and the source. The diagrams are drawn from this file.
-Last updated: 2026-10-21.
+Last updated: 2026-10-22.
 
 ## Stack
 
@@ -31,7 +31,7 @@ App module `:app`, package `com.example.pokedex` (test-only module `:testing` de
 | `di` | `ClockModule` (Hilt: the `java.time.Clock` that gives today's date) |
 | `domain/model` | `PokemonSummary`, `CaughtPokemon`, `Pokemon` (+ `Ability`, `Stat`, `Sprites`), `EvolutionStage` (+ `EvolutionCondition`, `Gender`), `DailyRound` (+ `RoundResult`, `Streak`) |
 | `domain/game` | `GuessGame` (+ `GuessOutcome`, `GuessResult`): the guess game's rules, plain Kotlin with no Android dependencies |
-| `presentation/navigation` | `Navigation` (NavHost and bottom bar: Home, Pokédex, Guess), `Screen` (routes) |
+| `presentation/navigation` | `Navigation` (NavHost and bottom bar: Home, Pokédex, Guess), `Screen` (routes), `SharedTransitions` (the sprite that flies from a grid card to the detail page) |
 | `presentation/home` | `HomeScreen`, `HomeViewModel` |
 | `presentation/pokedex` | `PokedexScreen`, `PokedexViewModel` |
 | `presentation/pokemonDetail` | `PokemonDetailScreen`, `PokemonDetailViewModel` |

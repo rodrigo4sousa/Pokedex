@@ -1,5 +1,15 @@
 package com.example.pokedex.presentation.navigation
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
@@ -12,10 +22,13 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -37,6 +50,26 @@ private enum class BottomTab(val screen: Screen, val label: String, val icon: @C
     Guess(Screen.GuessScreen, "Guess", { ImageVector.vectorResource(R.drawable.ic_question_mark) })
 }
 
+private const val TRANSITION_MILLIS = 350 // keep in step with SHARED_MILLIS in SharedTransitions.kt
+
+// The detail page rises a little while fading in, and sinks back when it is closed.
+private val detailEnter: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
+    fadeIn(tween(TRANSITION_MILLIS)) + slideInVertically(tween(TRANSITION_MILLIS)) { it / 8 }
+}
+private val detailPopExit: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
+    fadeOut(tween(TRANSITION_MILLIS)) + slideOutVertically(tween(TRANSITION_MILLIS)) { it / 8 }
+}
+
+/**
+ * Opens a detail page. With [id] the page can show the sprite before the Pokémon has loaded, and with
+ * [origin] as well that sprite flies in from the card that was tapped.
+ */
+private fun NavController.openDetail(name: String, id: Int? = null, origin: String? = null) {
+    val query = listOfNotNull(id?.let { "id=$it" }, origin?.let { "from=$it" }).joinToString("&")
+    navigate(Screen.PokemonDetailScreen.withArgs(name) + if (query.isEmpty()) "" else "?$query")
+}
+
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
@@ -73,51 +106,72 @@ fun Navigation() {
             }
         }
     ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = Screen.HomeScreen.route,
-            modifier = Modifier
-                .padding(innerPadding)
-                .consumeWindowInsets(innerPadding)
-        ) {
-            composable(Screen.HomeScreen.route) {
-                HomeScreen(
-                    onPokemonClick = { name ->
-                        navController.navigate(Screen.PokemonDetailScreen.withArgs(name))
+        SharedTransitionLayout {
+            CompositionLocalProvider(LocalSharedTransitionScope provides this) {
+                NavHost(
+                    navController = navController,
+                    startDestination = Screen.HomeScreen.route,
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .consumeWindowInsets(innerPadding)
+                ) {
+                    composable(Screen.HomeScreen.route) {
+                        CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides this) {
+                            HomeScreen(
+                                onPokemonClick = { pokemon ->
+                                    navController.openDetail(pokemon.name, pokemon.id, SpriteOrigin.HOME)
+                                }
+                            )
+                        }
                     }
-                )
-            }
 
-            composable(Screen.PokedexScreen.route) {
-                PokedexScreen(
-                    onPokemonClick = { name ->
-                        navController.navigate(Screen.PokemonDetailScreen.withArgs(name))
+                    composable(Screen.PokedexScreen.route) {
+                        CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides this) {
+                            PokedexScreen(
+                                onPokemonClick = { pokemon ->
+                                    navController.openDetail(pokemon.name, pokemon.id, SpriteOrigin.POKEDEX)
+                                }
+                            )
+                        }
                     }
-                )
-            }
 
-            composable(Screen.GuessScreen.route) {
-                GuessScreen(
-                    onOpenDetail = { name ->
-                        navController.navigate(Screen.PokemonDetailScreen.withArgs(name))
+                    composable(Screen.GuessScreen.route) {
+                        GuessScreen(
+                            onOpenDetail = { name -> navController.openDetail(name) }
+                        )
                     }
-                )
-            }
 
-            composable(
-                route = Screen.PokemonDetailScreen.route + "/{name}",
-                arguments = listOf(
-                    navArgument("name") {
-                        type = NavType.StringType
+                    composable(
+                        route = Screen.PokemonDetailScreen.route + "/{name}?id={id}&from={from}",
+                        arguments = listOf(
+                            navArgument("name") {
+                                type = NavType.StringType
+                            },
+                            navArgument("id") {
+                                type = NavType.IntType
+                                defaultValue = -1
+                            },
+                            navArgument("from") {
+                                type = NavType.StringType
+                                nullable = true
+                                defaultValue = null
+                            }
+                        ),
+                        enterTransition = detailEnter,
+                        popExitTransition = detailPopExit
+                    ) { entry ->
+                        val arguments = entry.arguments
+                        CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides this) {
+                            PokemonDetailScreen(
+                                spriteKey = spriteKey(arguments?.getString("from"), arguments?.getInt("id")),
+                                onBack = { navController.popBackStack() },
+                                onPokemonClick = { pokemon ->
+                                    navController.openDetail(pokemon.id.toString(), pokemon.id)
+                                }
+                            )
+                        }
                     }
-                )
-            ) {
-                PokemonDetailScreen(
-                    onBack = { navController.popBackStack() },
-                    onPokemonClick = { name ->
-                        navController.navigate(Screen.PokemonDetailScreen.withArgs(name))
-                    }
-                )
+                }
             }
         }
     }

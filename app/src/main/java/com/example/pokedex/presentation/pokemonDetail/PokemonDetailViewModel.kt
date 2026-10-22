@@ -21,6 +21,10 @@ class PokemonDetailViewModel @Inject constructor(
 
     private val name: String = checkNotNull(savedStateHandle["name"])
 
+    /** Shown in the hero while the Pokémon loads, when the page was opened with its number. */
+    val placeholderSpriteUrl: String? =
+        savedStateHandle.get<Int>("id")?.takeIf { it > 0 }?.let(pokemonRepository::spriteUrl)
+
     private val _pokemon = MutableLiveData<Pokemon>()
     val pokemon: LiveData<Pokemon> = _pokemon
 

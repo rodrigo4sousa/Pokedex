@@ -2,6 +2,8 @@ package com.example.pokedex.presentation.pokemonDetail
 
 import android.media.AudioAttributes
 import android.media.MediaPlayer
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -51,6 +53,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -75,16 +78,22 @@ import com.example.pokedex.domain.model.EvolutionCondition
 import com.example.pokedex.domain.model.EvolutionStage
 import com.example.pokedex.domain.model.Gender
 import com.example.pokedex.domain.model.Pokemon
+import com.example.pokedex.domain.model.PokemonSummary
 import com.example.pokedex.domain.model.Sprites
 import com.example.pokedex.presentation.components.CatchStarButton
 import com.example.pokedex.presentation.components.typeColor
+import com.example.pokedex.presentation.navigation.sharedSprite
+import com.example.pokedex.presentation.navigation.sharedSpriteBackground
 import java.util.Locale
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PokemonDetailScreen(
     onBack: () -> Unit,
-    onPokemonClick: (String) -> Unit,
+    onPokemonClick: (PokemonSummary) -> Unit,
+    /** Shared-element key of the sprite the page was opened from; null when it wasn't a grid card. */
+    spriteKey: String? = null,
     viewModel: PokemonDetailViewModel = hiltViewModel()
 ) {
     val pokemon by viewModel.pokemon.observeAsState()
@@ -123,8 +132,11 @@ fun PokemonDetailScreen(
                     modifier = Modifier.align(Alignment.Center)
                 )
 
-                currentPokemon != null -> PokemonContent(
+                // With a placeholder sprite the hero is drawn at once, so it can take part in the transition.
+                currentPokemon != null || viewModel.placeholderSpriteUrl != null -> PokemonContent(
                     pokemon = currentPokemon,
+                    placeholderSpriteUrl = viewModel.placeholderSpriteUrl,
+                    spriteKey = spriteKey,
                     evolutionChain = evolutionChain,
                     typeEffectiveness = typeEffectiveness,
                     isCaught = isCaught,
@@ -140,14 +152,16 @@ fun PokemonDetailScreen(
 
 @Composable
 private fun PokemonContent(
-    pokemon: Pokemon,
+    pokemon: Pokemon?,
+    placeholderSpriteUrl: String?,
+    spriteKey: String?,
     evolutionChain: EvolutionStage?,
     typeEffectiveness: Map<String, Double>?,
     isCaught: Boolean?,
     onToggleCaught: () -> Unit,
-    onPokemonClick: (String) -> Unit
+    onPokemonClick: (PokemonSummary) -> Unit
 ) {
-    val mainColor = pokemon.types.firstOrNull()?.let { typeColor(it) }
+    val mainColor = pokemon?.types?.firstOrNull()?.let { typeColor(it) }
         ?: MaterialTheme.colorScheme.surfaceContainerHighest
 
     Column(
@@ -161,13 +175,21 @@ private fun PokemonContent(
         // Hero
         HeroSprite(
             pokemon = pokemon,
+            placeholderSpriteUrl = placeholderSpriteUrl,
+            spriteKey = spriteKey,
             backgroundColor = mainColor.copy(alpha = 0.25f),
             isCaught = isCaught,
             onToggleCaught = onToggleCaught
         )
 
+        if (pokemon == null) {
+            CircularProgressIndicator()
+            return@Column
+        }
+
         // Id + name + types
         Column(
+            modifier = Modifier.enterFromBelow(order = 0),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -198,7 +220,9 @@ private fun PokemonContent(
 
         // Height / weight (PokeAPI: decimetres and hectograms)
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .enterFromBelow(order = 1),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             StatCard(
@@ -215,7 +239,7 @@ private fun PokemonContent(
 
         // Abilities
         if (pokemon.abilities.isNotEmpty()) {
-            Section(title = "Abilities") {
+            Section(title = "Abilities", modifier = Modifier.enterFromBelow(order = 2)) {
                 InfoCard {
                     pokemon.abilities.forEachIndexed { index, ability ->
                         if (index > 0) HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
@@ -241,7 +265,7 @@ private fun PokemonContent(
 
         // Base stats
         if (pokemon.stats.isNotEmpty()) {
-            Section(title = "Base stats") {
+            Section(title = "Base stats", modifier = Modifier.enterFromBelow(order = 3)) {
                 InfoCard {
                     Column(
                         modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
@@ -259,7 +283,7 @@ private fun PokemonContent(
 
         // Type effectiveness (how much damage it takes from each attacking type)
         if (!typeEffectiveness.isNullOrEmpty()) {
-            Section(title = "Type effectiveness") {
+            Section(title = "Type effectiveness", modifier = Modifier.enterFromBelow(order = 4)) {
                 InfoCard {
                     Column(
                         modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
@@ -286,7 +310,7 @@ private fun PokemonContent(
 
         // Evolution chain (hidden for Pokémon that don't evolve)
         if (evolutionChain != null && evolutionChain.evolvesTo.isNotEmpty()) {
-            Section(title = "Evolution") {
+            Section(title = "Evolution", modifier = Modifier.enterFromBelow(order = 5)) {
                 InfoCard {
                     Box(
                         modifier = Modifier
@@ -307,14 +331,39 @@ private fun PokemonContent(
     }
 }
 
+/**
+ * Fades and lifts a block into place once it is first shown. Blocks enter [order] x 40 ms apart, and
+ * sections that load later (evolution, type effectiveness) animate when they appear.
+ */
+@Composable
+private fun Modifier.enterFromBelow(order: Int): Modifier {
+    val progress = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        delay(order * 40L)
+        progress.animateTo(1f, tween(durationMillis = 300))
+    }
+    return graphicsLayer {
+        alpha = progress.value
+        translationY = (1f - progress.value) * 24.dp.toPx()
+    }
+}
+
+/** Until [pokemon] has loaded, shows [placeholderSpriteUrl] on a neutral background, without toggles. */
 @Composable
 private fun HeroSprite(
-    pokemon: Pokemon,
+    pokemon: Pokemon?,
+    placeholderSpriteUrl: String?,
+    spriteKey: String?,
     backgroundColor: Color,
     isCaught: Boolean?,
     onToggleCaught: () -> Unit
 ) {
-    val sprites = pokemon.sprites
+    val sprites = pokemon?.sprites
+    val animatedBackground by animateColorAsState(
+        targetValue = backgroundColor,
+        animationSpec = tween(durationMillis = 400),
+        label = "heroBackground"
+    )
     var showBack by rememberSaveable { mutableStateOf(false) }
     var shiny by rememberSaveable { mutableStateOf(false) }
     var female by rememberSaveable { mutableStateOf(false) }
@@ -331,18 +380,21 @@ private fun HeroSprite(
         modifier = Modifier
             .fillMaxWidth()
             .height(280.dp)
+            .sharedSpriteBackground(spriteKey)
             .clip(RoundedCornerShape(28.dp))
-            .background(backgroundColor),
+            .background(animatedBackground),
         contentAlignment = Alignment.Center
     ) {
         AsyncImage(
-            model = sprites.pick(facingBack, shiny, female) ?: sprites.frontDefault ?: sprites.frontShiny,
-            contentDescription = pokemon.name,
+            model = sprites?.let { it.pick(facingBack, shiny, female) ?: it.frontDefault ?: it.frontShiny }
+                ?: placeholderSpriteUrl,
+            contentDescription = pokemon?.name,
             contentScale = ContentScale.Fit,
             filterQuality = FilterQuality.None,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 64.dp)
+                .sharedSprite(spriteKey)
                 .graphicsLayer {
                     rotationY = if (facingBack) rotation - 180f else rotation
                     cameraDistance = 12f * density
@@ -361,7 +413,7 @@ private fun HeroSprite(
         }
 
         // A toggle is disabled when PokeAPI has no sprite for the combination it would switch to.
-        Row(
+        if (sprites != null) Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(12.dp),
@@ -421,10 +473,11 @@ private fun SpriteToggle(
 @Composable
 private fun Section(
     title: String,
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
@@ -578,13 +631,13 @@ private fun EffectivenessGroup(title: String, multipliers: List<Map.Entry<String
 private fun EvolutionTree(
     stage: EvolutionStage,
     currentSpecies: String,
-    onPokemonClick: (String) -> Unit
+    onPokemonClick: (PokemonSummary) -> Unit
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         EvolutionMember(
             stage = stage,
             isCurrent = stage.pokemon.name == currentSpecies,
-            onClick = { onPokemonClick(stage.pokemon.id.toString()) }
+            onClick = { onPokemonClick(stage.pokemon) }
         )
         if (stage.evolvesTo.isNotEmpty()) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {

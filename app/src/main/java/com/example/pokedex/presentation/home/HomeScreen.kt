@@ -28,10 +28,11 @@ import com.example.pokedex.presentation.components.PokemonGrid
 import com.example.pokedex.presentation.components.PokemonSearchBar
 import com.example.pokedex.presentation.components.PokemonSort
 import com.example.pokedex.presentation.components.SortChips
+import com.example.pokedex.presentation.navigation.SpriteOrigin
 
 @Composable
 fun HomeScreen(
-    onPokemonClick: (String) -> Unit,
+    onPokemonClick: (PokemonSummary) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val pokemons by viewModel.pokemons.observeAsState(emptyList())
@@ -66,7 +67,7 @@ fun HomeScreenContent(
     onSortChange: (PokemonSort) -> Unit,
     onToggleType: (String) -> Unit,
     onClearTypes: () -> Unit,
-    onPokemonClick: (String) -> Unit,
+    onPokemonClick: (PokemonSummary) -> Unit,
     onToggleCaught: (PokemonSummary) -> Unit
 ) {
     val gridState = rememberLazyGridState()
@@ -116,6 +117,7 @@ fun HomeScreenContent(
                             caughtNames = caughtNames,
                             gridState = gridState,
                             onPokemonClick = onPokemonClick,
+                            origin = SpriteOrigin.HOME,
                             onToggleCaught = onToggleCaught
                         )
                     }

@@ -5,6 +5,7 @@ import androidx.lifecycle.map
 import com.example.pokedex.data.local.CaughtPokemonDao
 import com.example.pokedex.data.mapper.caughtPokemonEntity
 import com.example.pokedex.data.mapper.memberNames
+import com.example.pokedex.data.mapper.spriteUrlFor
 import com.example.pokedex.data.mapper.toDamageMultipliers
 import com.example.pokedex.data.mapper.toDomain
 import com.example.pokedex.data.mapper.toPokemonSummary
@@ -30,6 +31,9 @@ class PokemonRepository @Inject constructor(
     private val typeMembers = mutableMapOf<String, Set<String>>()
 
     suspend fun getPokemon(name: String): Pokemon = api.getPokemon(name).toDomain()
+
+    /** The front sprite of Pokédex number [id], known without a request. */
+    fun spriteUrl(id: Int): String = spriteUrlFor(id)
 
     suspend fun getAllPokemons(): List<PokemonSummary> =
         api.getPokemonPage(limit = 100000, offset = 0).results.map { it.toPokemonSummary() }

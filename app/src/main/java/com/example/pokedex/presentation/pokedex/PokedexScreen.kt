@@ -23,15 +23,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.pokedex.domain.model.PokemonSummary
 import com.example.pokedex.presentation.components.FilterSidePanel
 import com.example.pokedex.presentation.components.PokemonGrid
 import com.example.pokedex.presentation.components.PokemonSearchBar
 import com.example.pokedex.presentation.components.PokemonSort
 import com.example.pokedex.presentation.components.SortChips
+import com.example.pokedex.presentation.navigation.SpriteOrigin
 
 @Composable
 fun PokedexScreen(
-    onPokemonClick: (String) -> Unit,
+    onPokemonClick: (PokemonSummary) -> Unit,
     viewModel: PokedexViewModel = hiltViewModel()
 ) {
     val caughtPokemons by viewModel.caughtPokemons.observeAsState()
@@ -99,6 +101,7 @@ fun PokedexScreen(
                                 caughtNames = caughtNames,
                                 gridState = gridState,
                                 onPokemonClick = onPokemonClick,
+                                origin = SpriteOrigin.POKEDEX,
                                 onToggleCaught = viewModel::release
                             )
                         }
