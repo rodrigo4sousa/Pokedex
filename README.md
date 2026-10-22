@@ -19,12 +19,12 @@ An Android Pokédex with a daily **"Who's that Pokémon?"** game: guess the hidd
 
 ## Features
 
-- **Guess the daily Pokémon (US06):** one hidden Pokémon a day, shown as a silhouette. Three hearts to name it; a win raises the streak, a loss or a missed day resets it. The round and the streak are saved on the device.
 - **Catch a Pokémon (US01):** tap the star on any card or "Catch" on the detail page. Caught Pokémon are saved on the device, and every screen updates at once.
 - **Release a Pokémon (US02):** tap the star again, on any screen.
 - **Browse all Pokémon (US03):** the full list, forms included, with search by name, sorting by number or name, and a filter by type (selected types combine with OR).
 - **Inspect a Pokémon (US04):** sprites (front/back, shiny, female), its cry, height, weight, abilities, base stats, weaknesses and resistances computed from its types, and the evolution chain with its conditions. The sprite flies from the card you tapped into the detail page.
 - **Review My Pokédex (US05):** the caught Pokémon with a "Caught x / 1025" counter, search, sorting by number, name or date caught, and the same type filter.
+- **Guess the daily Pokémon (US06):** one hidden Pokémon a day, shown as a silhouette. Three hearts to name it; a win raises the streak, a loss or a missed day resets it. The round and the streak are saved on the device.
 
 The user stories and their acceptance criteria are in [`docs/specification.md`](docs/specification.md).
 

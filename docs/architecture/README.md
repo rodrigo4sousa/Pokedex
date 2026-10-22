@@ -241,12 +241,6 @@ The root [README](../../README.md#architecture) uses four hand-drawn SVGs in [`d
 | [`data-layer.svg`](../images/architecture/data-layer.svg) | The two repositories, the mappers, and PokeAPI and Room as data sources |
 | [`single-source-of-truth.svg`](../images/architecture/single-source-of-truth.svg) | A catch is written to Room, and Room updates every screen |
 
-## Known limitations
-
-The diagrams show the code as it is, gaps included.
-
-Android Auto Backup is left out of the diagrams. `data_extraction_rules.xml` (Android 12+) and `backup_rules.xml` (Android 11 and lower, unused with `minSdk` 31) keep only `pokedex.db` and its WAL file, so caught Pokémon survive a phone change.
-
 ## Rendering the diagrams
 
 The SVGs in [`out/`](out/) are generated from the `.puml` files; don't edit them by hand. [`render.sh`](render.sh) (Git Bash, macOS, Linux) and [`render.ps1`](render.ps1) (Windows PowerShell) render every diagram with the `plantuml/plantuml` Docker image. The diagrams use Arial and the image only has DejaVu fonts, so the scripts mount Arial from the host into the container. Docker must be running.
