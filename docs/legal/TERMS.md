@@ -28,4 +28,4 @@ How the app handles data is described in the [Privacy Policy](PRIVACY_POLICY.md)
 
 ## Contact
 
-Rodrigo Sousa, **[o teu email de projetos]**
+Rodrigo Sousa, **rcsousa05@gmail.com**

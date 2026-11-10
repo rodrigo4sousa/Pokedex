@@ -6,7 +6,7 @@ This policy describes what the Pokédex Android app does with data. The app is a
 
 ## Who is responsible
 
-Rodrigo Sousa, the author of the app. Contact: **[o teu email de projetos]**
+Rodrigo Sousa, the author of the app. Contact: **rcsousa05@gmail.com**
 
 The author runs no server for the app and receives no data from it.
 
@@ -51,7 +51,7 @@ These services have their own privacy practices, which the author does not contr
 
 ## Your rights
 
-The author holds no personal data about you, so there is nothing to access, correct or delete on your behalf: the data is on your device and you control it as described above. Under the GDPR you also have the rights of access, rectification, erasure, restriction, objection and portability, and the right to complain to your national data protection authority. Questions or requests: **[o teu email de projetos]**.
+The author holds no personal data about you, so there is nothing to access, correct or delete on your behalf: the data is on your device and you control it as described above. Under the GDPR you also have the rights of access, rectification, erasure, restriction, objection and portability, and the right to complain to your national data protection authority. Questions or requests: **rcsousa05@gmail.com**.
 
 ## Children
 

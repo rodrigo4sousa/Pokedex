@@ -9,6 +9,8 @@ The tests are split into four layers. No test calls the real PokeAPI or the spri
 | Unit | One class, or a small group, with hand-written fakes at the boundaries (API, DAO): mappers, both repositories, the guess game's rules (`GuessGame`), `LoadError`, the four ViewModels | `app/src/test` | JVM | 85 |
 | Integration (JVM) | `PokemonApi` with real Retrofit and Gson, against MockWebServer | `app/src/test` | JVM | 12 |
 | Integration (device) | `CaughtPokemonDao`, `PokemonRepository` with real Room and MockWebServer, the v1 → v2 migration | `app/src/androidTest` | Emulator or device | 9 |
+| Component (device) | The About screen in isolation: disclaimer, Privacy Policy, Terms and source links (a recording `UriHandler` replaces the browser), back button | `app/src/androidTest` | Emulator or device | 5 |
+| Build logic | The versionName to versionCode rules in `buildSrc` | `buildSrc/src/test` | JVM | 9 |
 | System | The whole app through the Compose UI, one test class per use case in [`specification.md`](specification.md) | `app/src/androidTest` | Emulator or device | 16 |
 
 Not covered: cry playback (`MediaPlayer` is created inside the composable, with no seam to replace it), tapping an evolution (it opens the detail by Pokédex number, which has no fixtures), and how the guess game's silhouette looks (the device tests load images with a fake Coil engine, so they check its description, not its pixels).
@@ -17,7 +19,8 @@ Not covered: cry playback (`MediaPlayer` is created inside the composable, with 
 
 ```bash
 ./gradlew testDebugUnitTest            # unit and JVM integration tests
-./gradlew connectedDebugAndroidTest    # device integration and system tests (needs a running emulator)
+./gradlew -p buildSrc test             # version rules
+./gradlew connectedDebugAndroidTest    # device integration, component and system tests (needs a running emulator)
 ```
 
 `connectedDebugAndroidTest` uninstalls the app when it finishes, which deletes its data. Run it on an emulator kept for tests, not on one with Pokémon you caught.

@@ -1,5 +1,6 @@
 # Pokédex
 
+[![CI](https://github.com/rodrigo4sousa/Pokedex/actions/workflows/ci.yml/badge.svg)](https://github.com/rodrigo4sousa/Pokedex/actions/workflows/ci.yml)
 ![API](https://img.shields.io/badge/API-31%2B-brightgreen.svg?style=flat)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.4.20-7F52FF.svg?style=flat&logo=kotlin&logoColor=white)
 ![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4.svg?style=flat&logo=jetpackcompose&logoColor=white)
@@ -84,14 +85,32 @@ The tests are split into unit, JVM integration, device integration and system te
 
 ## Build and run
 
-1. Clone the repository and open it in an Android Studio version that supports AGP 9.4.
-2. Run it on a device or emulator with Android 12 (API 31) or newer:
+You need **JDK 25** (the Gradle daemon is pinned to it, and Gradle can download it for you), the Android SDK with API 37, and an Android Studio version that supports AGP 9.4.
 
 ```bash
-./gradlew installDebug
+git clone https://github.com/rodrigo4sousa/Pokedex.git
+cd Pokedex
+./gradlew installDebug          # build and install on a device or emulator (Android 12, API 31 or newer)
+./gradlew testDebugUnitTest     # unit tests
 ```
 
-The app needs internet access to load data from PokeAPI.
+The app needs internet access to load data from PokeAPI. Build, lint and unit tests also run on every pull request in GitHub Actions.
+
+## Install the APK
+
+Each [release](https://github.com/rodrigo4sousa/Pokedex/releases) has a signed APK, an AAB and a checksum file. To install the APK, allow installs from your browser or file manager on the phone, then open the file.
+
+To check the download first, put the `.apk` and the `.sha256` file in the same folder and run:
+
+```bash
+sha256sum -c pokedex-vX.Y.Z.sha256        # Linux, macOS, Git Bash
+```
+
+```powershell
+Get-FileHash pokedex-vX.Y.Z.apk -Algorithm SHA256   # Windows: compare with the line in the .sha256 file
+```
+
+How releases are built and published is in [`docs/RELEASING.md`](docs/RELEASING.md), and what changed in each one is in the [changelog](CHANGELOG.md).
 
 ## Credits
 
@@ -104,6 +123,10 @@ This is an unofficial fan project. It is **not affiliated with, endorsed by or s
 ## Privacy and terms
 
 The app has no accounts, analytics or ads. What it stores stays on the device, and what it requests from PokeAPI and GitHub is described in the [Privacy Policy](docs/legal/PRIVACY_POLICY.md) and the [Terms of Use](docs/legal/TERMS.md).
+
+## Security
+
+To report a vulnerability, see [`SECURITY.md`](SECURITY.md).
 
 ## License
 
