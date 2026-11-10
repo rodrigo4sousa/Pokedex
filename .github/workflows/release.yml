@@ -29,9 +29,11 @@ jobs:
             echo "Tag '$TAG' must look like vMAJOR.MINOR.PATCH or vMAJOR.MINOR.PATCH-rcN" >&2
             exit 1
           fi
+          # A release candidate uses the changelog section of its base version (v1.0.0-rc1 uses [1.0.0]).
           version="${TAG#v}"
-          if ! grep -q "^## \[${version}\]" CHANGELOG.md; then
-            echo "CHANGELOG.md has no section for ${version}" >&2
+          base="${version%%-*}"
+          if ! grep -q "^## \[${base}\]" CHANGELOG.md; then
+            echo "CHANGELOG.md has no section for ${base}" >&2
             exit 1
           fi
 
@@ -139,7 +141,8 @@ jobs:
       - name: Extract the release notes from the changelog
         run: |
           version="${TAG#v}"
-          awk -v v="$version" '
+          base="${version%%-*}"
+          awk -v v="$base" '
             /^## \[/ { if (found) exit; if (index($0, "## [" v "]") == 1) { found = 1; next } }
             /^\[[^]]+\]: / { if (found) exit }
             found { print }

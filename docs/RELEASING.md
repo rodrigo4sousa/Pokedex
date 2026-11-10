@@ -60,7 +60,7 @@ Delete the `.base64` file afterwards.
 
 ## Cutting a release
 
-1. Move the entries under `## [Unreleased]` in `CHANGELOG.md` to a new `## [X.Y.Z] - YYYY-MM-DD` section, and update the links at the bottom.
+1. Move the entries under `## [Unreleased]` in `CHANGELOG.md` to a new `## [X.Y.Z] - YYYY-MM-DD` section, and update the links at the bottom. A release candidate needs no section of its own: `vX.Y.Z-rc1` uses the notes of `[X.Y.Z]`, so write that section before tagging the candidate.
 2. Commit the change on `main` and wait for CI to pass.
 3. Tag and push:
 
@@ -69,7 +69,7 @@ Delete the `.base64` file afterwards.
    git push origin vX.Y.Z
    ```
 
-4. The workflow fails early if the tag is malformed, if `CHANGELOG.md` has no section for it, or if a signing secret is missing. After the build it checks that the APK's `versionName` equals the tag and that `apksigner verify` passes with a non-debug certificate. Then it attaches `pokedex-vX.Y.Z.apk`, `pokedex-vX.Y.Z.aab` and `pokedex-vX.Y.Z.sha256` to the release, with the changelog section as the notes.
+4. The workflow fails early if the tag is malformed, if `CHANGELOG.md` has no section for its base version (`1.0.0` for `v1.0.0-rc1`), or if a signing secret is missing. After the build it checks that the APK's `versionName` equals the tag and that `apksigner verify` passes with a non-debug certificate. Then it attaches `pokedex-vX.Y.Z.apk`, `pokedex-vX.Y.Z.aab` and `pokedex-vX.Y.Z.sha256` to the release, with the changelog section as the notes.
 5. The R8 `mapping.txt` of the release is kept as a workflow artifact (`r8-mapping-vX.Y.Z`, 90 days), not as a release asset. Download it from the workflow run if you need to read a release stack trace; after 90 days it is gone, so save it if the release matters.
 
 To verify a download:
