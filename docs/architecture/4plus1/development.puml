@@ -29,6 +29,7 @@ package ":app module" {
         package "pokedex"
         package "pokemonDetail"
         package "guess"
+        package "about"
         package "components"
         package "theme"
     }
@@ -53,6 +54,7 @@ package ":testing module (test only)" {
 "navigation" --> "pokedex" : PokedexScreen
 "navigation" --> "pokemonDetail" : PokemonDetailScreen
 "navigation" --> "guess" : GuessScreen
+"navigation" --> "about" : AboutScreen
 
 "home" --> "components" : grid, search, sort, filter
 "pokedex" --> "components" : grid, search, sort, filter

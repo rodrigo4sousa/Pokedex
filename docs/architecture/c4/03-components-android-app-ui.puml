@@ -22,6 +22,7 @@ Container_Boundary(androidApp, "Android App") {
     Component(homeScreen, "HomeScreen", "Compose, Coil", "Full list: search, sort, type filter")
     Component(pokedexScreen, "PokedexScreen", "Compose, Coil", "Caught list with counter")
     Component(guessScreen, "GuessScreen", "Compose, Coil", "Daily silhouette, guesses, hearts, streak")
+    Component(aboutScreen, "AboutScreen", "Compose", "Disclaimer, credits, legal links")
     Component(detailScreen, "PokemonDetailScreen", "Compose, Coil, MediaPlayer", "Stats, sprites, cry, evolutions, type matchups")
 
     Component(homeVm, "HomeViewModel", "ViewModel, LiveData")
@@ -36,6 +37,7 @@ Rel(mainActivity, navigation, $plain("Sets content"), "setContent")
 Rel(navigation, homeScreen, $plain("Shows Home tab"), "Navigation Compose")
 Rel(navigation, pokedexScreen, $plain("Shows Pokédex tab"), "Navigation Compose")
 Rel(navigation, guessScreen, $plain("Shows Guess tab"), "Navigation Compose")
+Rel(navigation, aboutScreen, $plain("Opens About"), "Navigation Compose")
 Rel(navigation, detailScreen, $plain("Opens Pokémon detail"), "route arg: name")
 
 Rel(homeScreen, homeVm, $plain("Observes and calls"), "LiveData")

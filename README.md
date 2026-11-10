@@ -97,4 +97,14 @@ The app needs internet access to load data from PokeAPI.
 
 Pokémon data comes from [PokeAPI](https://pokeapi.co/), the sprites from [PokeAPI/sprites](https://github.com/PokeAPI/sprites) and the cries from [PokeAPI/cries](https://github.com/PokeAPI/cries). PokeAPI is free and needs no API key; please follow its [fair use policy](https://pokeapi.co/docs/v2#fairuse).
 
-Pokémon and Pokémon character names are trademarks of Nintendo, Game Freak and The Pokémon Company. This is a personal project, not affiliated with them.
+## Disclaimer
+
+This is an unofficial fan project. It is **not affiliated with, endorsed by or sponsored by** Nintendo, Game Freak, Creatures or The Pokémon Company. Pokémon and Pokémon character names, sprites, artwork and cries belong to their respective owners. The repository does not redistribute official art: the app loads sprites, artwork and cries at run time from PokeAPI's public repositories, and the screenshots above show that content as the app displays it. The same notice is in the app, on the About screen (the info button on Home).
+
+## Privacy and terms
+
+The app has no accounts, analytics or ads. What it stores stays on the device, and what it requests from PokeAPI and GitHub is described in the [Privacy Policy](docs/legal/PRIVACY_POLICY.md) and the [Terms of Use](docs/legal/TERMS.md).
+
+## License
+
+The source code is released under the [MIT License](LICENSE). The license covers the code only, not Pokémon names, sprites, artwork, cries or data.
