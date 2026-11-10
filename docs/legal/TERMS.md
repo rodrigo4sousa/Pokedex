@@ -1,3 +1,8 @@
+---
+layout: default
+title: Terms of Use
+---
+
 # Terms of Use
 
 Last updated: 2026-11-10
@@ -16,7 +21,7 @@ Pokémon data comes from [PokeAPI](https://pokeapi.co/) and the PokeAPI reposito
 
 ## Source code licence
 
-The app's source code is released under the [MIT License](../../LICENSE). The licence covers the code only. It does not grant any rights over Pokémon names, sprites, artwork, cries or data, which belong to their owners.
+The app's source code is released under the [MIT License](https://github.com/rodrigo4sousa/Pokedex/blob/main/LICENSE). The licence covers the code only. It does not grant any rights over Pokémon names, sprites, artwork, cries or data, which belong to their owners.
 
 ## No warranty and limit of liability
 
@@ -24,7 +29,7 @@ The app is provided "as is", without warranty. To the extent permitted by law, t
 
 ## Privacy
 
-How the app handles data is described in the [Privacy Policy](PRIVACY_POLICY.md).
+How the app handles data is described in the [Privacy Policy](https://rodrigo4sousa.github.io/Pokedex/legal/PRIVACY_POLICY.html).
 
 ## Contact
 
