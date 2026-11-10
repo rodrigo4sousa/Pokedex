@@ -5,6 +5,7 @@ sealed class Screen(val route: String) {
     object PokedexScreen : Screen("pokedex_screen")
     object PokemonDetailScreen : Screen("pokemon_detail_screen")
     object GuessScreen : Screen("guess_screen")
+    object AboutScreen : Screen("about_screen")
 
     fun withArgs(vararg args: String): String {
         return buildString {

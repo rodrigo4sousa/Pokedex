@@ -38,6 +38,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import io.github.rodrigo4sousa.pokedex.R
+import io.github.rodrigo4sousa.pokedex.presentation.about.AboutScreen
 import io.github.rodrigo4sousa.pokedex.presentation.guess.GuessScreen
 import io.github.rodrigo4sousa.pokedex.presentation.home.HomeScreen
 import io.github.rodrigo4sousa.pokedex.presentation.pokedex.PokedexScreen
@@ -118,6 +119,7 @@ fun Navigation() {
                     composable(Screen.HomeScreen.route) {
                         CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides this) {
                             HomeScreen(
+                                onAboutClick = { navController.navigate(Screen.AboutScreen.route) },
                                 onPokemonClick = { pokemon ->
                                     navController.openDetail(pokemon.name, pokemon.id, SpriteOrigin.HOME)
                                 }
@@ -133,6 +135,10 @@ fun Navigation() {
                                 }
                             )
                         }
+                    }
+
+                    composable(Screen.AboutScreen.route) {
+                        AboutScreen(onBack = { navController.popBackStack() })
                     }
 
                     composable(Screen.GuessScreen.route) {

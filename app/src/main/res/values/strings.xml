@@ -23,4 +23,19 @@
     <string name="guess_lost">Out of hearts!</string>
     <string name="guess_come_back">Come back tomorrow for a new Pokémon.</string>
     <string name="guess_open_details">Open details</string>
+
+    <!-- About -->
+    <string name="about_open">About</string>
+    <string name="about_title">About</string>
+    <string name="about_back">Back</string>
+    <string name="about_version">v%1$s</string>
+    <string name="about_disclaimer_title">Unofficial fan project</string>
+    <string name="about_disclaimer_body">This app is not affiliated with, endorsed by or sponsored by Nintendo, Game Freak, Creatures or The Pokémon Company. Pokémon and Pokémon character names, sprites, artwork and cries are trademarks and copyrights of their respective owners.</string>
+    <string name="about_data_title">Data and images</string>
+    <string name="about_data_body">Pokémon data comes from PokeAPI, and sprites, artwork and cries are loaded from the PokeAPI repositories on GitHub. Responses are cached on the device to keep the number of requests low. The Pokémon you catch and your guess game progress stay on this device.</string>
+    <string name="about_privacy_policy">Privacy Policy</string>
+    <string name="about_terms">Terms of Use</string>
+    <string name="about_source_code">Source code</string>
+    <string name="about_pokeapi">PokeAPI</string>
+    <string name="about_license">The source code is released under the MIT License.</string>
 </resources>

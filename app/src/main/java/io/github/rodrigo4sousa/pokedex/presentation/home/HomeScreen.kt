@@ -2,10 +2,16 @@ package io.github.rodrigo4sousa.pokedex.presentation.home
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -18,10 +24,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import io.github.rodrigo4sousa.pokedex.R
 import io.github.rodrigo4sousa.pokedex.domain.model.PokemonSummary
 import io.github.rodrigo4sousa.pokedex.presentation.components.FilterSidePanel
 import io.github.rodrigo4sousa.pokedex.presentation.components.PokemonGrid
@@ -32,6 +40,7 @@ import io.github.rodrigo4sousa.pokedex.presentation.navigation.SpriteOrigin
 
 @Composable
 fun HomeScreen(
+    onAboutClick: () -> Unit,
     onPokemonClick: (PokemonSummary) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -51,6 +60,7 @@ fun HomeScreen(
         onSortChange = viewModel::onSortChange,
         onToggleType = viewModel::toggleType,
         onClearTypes = viewModel::clearTypes,
+        onAboutClick = onAboutClick,
         onPokemonClick = onPokemonClick,
         onToggleCaught = viewModel::toggleCaught
     )
@@ -67,6 +77,7 @@ fun HomeScreenContent(
     onSortChange: (PokemonSort) -> Unit,
     onToggleType: (String) -> Unit,
     onClearTypes: () -> Unit,
+    onAboutClick: () -> Unit,
     onPokemonClick: (PokemonSummary) -> Unit,
     onToggleCaught: (PokemonSummary) -> Unit
 ) {
@@ -80,12 +91,22 @@ fun HomeScreenContent(
     Box(modifier = Modifier.fillMaxSize()) {
         Surface(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.systemBarsPadding()) {
-                Text(
-                    text = "Pokédex",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(start = 20.dp, top = 12.dp, end = 20.dp)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp, top = 12.dp, end = 8.dp)
+                ) {
+                    Text(
+                        text = "Pokédex",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f)
+                    )
+                    IconButton(onClick = onAboutClick) {
+                        Icon(Icons.Filled.Info, contentDescription = stringResource(R.string.about_open))
+                    }
+                }
 
                 PokemonSearchBar(
                     query = query,
