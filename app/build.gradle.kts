@@ -5,6 +5,25 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+// Version: -PappVersionName=1.2.3 wins (the release workflow passes the tag); otherwise the latest vX.Y.Z git
+// tag; otherwise 0.0.0-dev. The name is MAJOR.MINOR.PATCH or MAJOR.MINOR.PATCH-rcN, and versionCode is computed
+// from it in buildSrc/AppVersion.kt (1.2.3-rc1 is 10200301, 1.2.3 is 10200399). Other names fail the build.
+val appVersionName: String = providers.gradleProperty("appVersionName")
+    .orElse(
+        providers.exec {
+            commandLine("git", "describe", "--tags", "--abbrev=0", "--match", "v[0-9]*")
+            isIgnoreExitValue = true
+        }.standardOutput.asText.map { it.trim().removePrefix("v") }
+    )
+    .map { it.ifEmpty { AppVersion.DEV_NAME } }
+    .get()
+val appVersionCode: Int = AppVersion.code(appVersionName)
+
+// Release signing comes from environment variables or Gradle properties, never from files in the repo.
+// Without all four, the release build is simply left unsigned.
+fun signingValue(name: String): String? =
+    providers.environmentVariable(name).orElse(providers.gradleProperty(name)).orNull
+
 android {
     namespace = "io.github.rodrigo4sousa.pokedex"
     compileSdk {
@@ -15,16 +34,38 @@ android {
         applicationId = "io.github.rodrigo4sousa.pokedex"
         minSdk = 31
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = appVersionCode
+        versionName = appVersionName
 
         testInstrumentationRunner = "io.github.rodrigo4sousa.pokedex.HiltTestRunner"
     }
 
+    val releaseKeystore = signingValue("KEYSTORE_FILE")
+    val releaseStorePassword = signingValue("KEYSTORE_PASSWORD")
+    val releaseKeyAlias = signingValue("KEY_ALIAS")
+    val releaseKeyPassword = signingValue("KEY_PASSWORD")
+    val canSignRelease = listOf(releaseKeystore, releaseStorePassword, releaseKeyAlias, releaseKeyPassword)
+        .all { !it.isNullOrEmpty() }
+
+    signingConfigs {
+        if (canSignRelease) {
+            create("release") {
+                storeFile = file(releaseKeystore!!)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
+            // R8 shrinks and obfuscates; the keep rules for Gson DTOs are in src/main/keepRules/rules.keep.
             optimization {
-                enable = false
+                enable = true
+            }
+            if (canSignRelease) {
+                signingConfig = signingConfigs.getByName("release")
             }
         }
     }
