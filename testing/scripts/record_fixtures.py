@@ -3,7 +3,8 @@
 Usage: python testing/scripts/record_fixtures.py
 
 Only the standard library is used. Responses are saved as PokeAPI sends them, except the full
-Pokemon list, which is trimmed to the Pokemon the tests expect.
+Pokemon list, which is trimmed to the Pokemon the tests expect, and the species'
+flavor_text_entries, which are game text and are not needed by the app or the tests.
 """
 import json
 import pathlib
@@ -53,7 +54,9 @@ def main():
     for name in POKEMON:
         save(f"pokemon/{name}.json", fetch(f"pokemon/{name}"))
     for name in SPECIES:
-        save(f"pokemon-species/{name}.json", fetch(f"pokemon-species/{name}"))
+        species = fetch(f"pokemon-species/{name}")
+        species.pop("flavor_text_entries", None)
+        save(f"pokemon-species/{name}.json", species)
     for chain_id in EVOLUTION_CHAINS:
         save(f"evolution-chain/{chain_id}.json", fetch(f"evolution-chain/{chain_id}/"))
     for type_name in TYPES:
