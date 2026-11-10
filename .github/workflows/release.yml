@@ -1,0 +1,153 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: Check the tag and the changelog
+        run: |
+          if ! echo "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?$'; then
+            echo "Tag '$TAG' must look like vMAJOR.MINOR.PATCH or vMAJOR.MINOR.PATCH-rcN" >&2
+            exit 1
+          fi
+          version="${TAG#v}"
+          if ! grep -q "^## \[${version}\]" CHANGELOG.md; then
+            echo "CHANGELOG.md has no section for ${version}" >&2
+            exit 1
+          fi
+
+      - name: Check the signing secrets are set
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          missing=0
+          for name in KEYSTORE_BASE64 KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "Secret $name is not set" >&2
+              missing=1
+            fi
+          done
+          exit "$missing"
+
+      - name: Decode the keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.jks"
+          echo "KEYSTORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+
+      - name: Build the signed APK and AAB
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew assembleRelease bundleRelease -PappVersionName="${TAG#v}" --console=plain
+
+      - name: Remove the keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.jks"
+
+      - name: Check the version and the signature
+        run: |
+          apk=app/build/outputs/apk/release/app-release.apk
+          built=$(jq -r '.elements[0].versionName' app/build/outputs/apk/release/output-metadata.json)
+          if [ "$built" != "${TAG#v}" ]; then
+            echo "Built versionName '$built' does not match the tag '$TAG'" >&2
+            exit 1
+          fi
+          apksigner=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -1)
+          "$apksigner" verify --print-certs "$apk" | tee certs.txt
+          if grep -q 'CN=Android Debug' certs.txt; then
+            echo "The APK is signed with the debug key" >&2
+            exit 1
+          fi
+
+      - name: Name the files and write the checksums
+        run: |
+          mkdir dist
+          cp app/build/outputs/apk/release/app-release.apk "dist/pokedex-${TAG}.apk"
+          cp app/build/outputs/bundle/release/app-release.aab "dist/pokedex-${TAG}.aab"
+          cd dist
+          sha256sum "pokedex-${TAG}.apk" "pokedex-${TAG}.aab" > "pokedex-${TAG}.sha256"
+          cat "pokedex-${TAG}.sha256"
+
+      # Optional: publish the bundle to the Play Console internal track. Needs a service account JSON
+      # in the PLAY_SERVICE_ACCOUNT_JSON secret and a package name registered in the Play Console.
+      # - name: Upload to the Play internal track
+      #   uses: r0adkll/upload-google-play@v1
+      #   with:
+      #     serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+      #     packageName: io.github.rodrigo4sousa.pokedex
+      #     releaseFiles: dist/pokedex-${{ github.ref_name }}.aab
+      #     track: internal
+      #     status: draft
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-files
+          path: dist/
+          if-no-files-found: error
+
+      # The R8 mapping turns release stack traces back into readable ones. It stays a workflow artifact,
+      # not a release asset, so it is not published.
+      - uses: actions/upload-artifact@v7
+        with:
+          name: r8-mapping-${{ github.ref_name }}
+          path: app/build/outputs/mapping/release/mapping.txt
+          retention-days: 90
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: release-files
+          path: dist
+
+      - name: Extract the release notes from the changelog
+        run: |
+          version="${TAG#v}"
+          awk -v v="$version" '
+            /^## \[/ { if (found) exit; if (index($0, "## [" v "]") == 1) { found = 1; next } }
+            /^\[[^]]+\]: / { if (found) exit }
+            found { print }
+          ' CHANGELOG.md > notes.md
+          test -s notes.md
+
+      - name: Create the GitHub release
+        run: |
+          flags=""
+          case "$TAG" in *-*) flags="--prerelease" ;; esac
+          gh release create "$TAG" dist/* --title "$TAG" --notes-file notes.md $flags
