@@ -18,7 +18,7 @@ Last updated: 2026-10-22.
 
 ## Gradle modules and packages
 
-App module `:app`, package `com.example.pokedex` (test-only module `:testing` described below):
+App module `:app`, package `io.github.rodrigo4sousa.pokedex` (test-only module `:testing` described below):
 
 | Package | Contents |
 |---|---|
@@ -45,7 +45,7 @@ Plain Kotlin/JVM, used as `testImplementation` and `androidTestImplementation` b
 
 | Package / folder | Contents |
 |---|---|
-| `com.example.pokedex.testing` | `Fixtures` (loads recorded JSON through the classloader), `PokeApiDispatcher` (MockWebServer dispatcher: path → fixture, 404 for unknown paths, 500 on demand) |
+| `io.github.rodrigo4sousa.pokedex.testing` | `Fixtures` (loads recorded JSON through the classloader), `PokeApiDispatcher` (MockWebServer dispatcher: path → fixture, 404 for unknown paths, 500 on demand) |
 | `src/main/resources/fixtures/` | Recorded PokeAPI responses: trimmed Pokémon list and species list, Bulbasaur / Eevee / Tauros / Giratina (`pokemon-species`, and `pokemon` for each default Pokémon, `giratina-altered` for Giratina), evolution chains 1, 63, 67, types grass / poison / normal, species count |
 | `scripts/record_fixtures.py` | Re-records the fixtures |
 

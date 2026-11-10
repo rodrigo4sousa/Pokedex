@@ -6,19 +6,19 @@ plugins {
 }
 
 android {
-    namespace = "com.example.pokedex"
+    namespace = "io.github.rodrigo4sousa.pokedex"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.example.pokedex"
+        applicationId = "io.github.rodrigo4sousa.pokedex"
         minSdk = 31
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "com.example.pokedex.HiltTestRunner"
+        testInstrumentationRunner = "io.github.rodrigo4sousa.pokedex.HiltTestRunner"
     }
 
     buildTypes {

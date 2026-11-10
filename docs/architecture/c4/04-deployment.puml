@@ -14,7 +14,7 @@ LAYOUT_LEFT_RIGHT()
 title Deployment - current
 
 Deployment_Node(device, "Android device", "Android 12+ (minSdk 31)") {
-    Deployment_Node(sandbox, "App sandbox", "com.example.pokedex") {
+    Deployment_Node(sandbox, "App sandbox", "io.github.rodrigo4sousa.pokedex") {
         Container(androidApp, "Android App", "Kotlin, Jetpack Compose, Hilt", "Requires INTERNET permission")
         ContainerDb(localDb, "Local Database", "Room / SQLite", "pokedex.db in app internal storage")
     }

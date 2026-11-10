@@ -10,7 +10,7 @@
 ' Arrows are import dependencies, labelled with what is imported (from the imports in app/src/main).
 ' Arrows from `presentation` group its subpackages: data and domain.model (home, pokedex, pokemonDetail, guess).
 ' di holds ClockModule; like the other Hilt modules it is only referenced by Hilt's generated code, so no arrow points to it.
-' Package names below com.example.pokedex are shown relative to it (data.local = com.example.pokedex.data.local).
+' Package names below io.github.rodrigo4sousa.pokedex are shown relative to it (data.local = io.github.rodrigo4sousa.pokedex.data.local).
 ' :testing is plain Kotlin/JVM with no app classes: recorded PokeAPI fixtures (resources) and PokeApiDispatcher.
 ' :app's test source sets (src/test, src/androidTest) are not drawn as packages; they depend on :testing.
 @startuml development
@@ -22,7 +22,7 @@ set separator none
 left to right direction
 
 package ":app module" {
-    package "com.example.pokedex"
+    package "io.github.rodrigo4sousa.pokedex"
     package "presentation" {
         package "navigation"
         package "home"
@@ -46,8 +46,8 @@ package ":testing module (test only)" {
     package "testing"
 }
 
-"com.example.pokedex" --> "navigation" : Navigation
-"com.example.pokedex" --> "theme" : PokedexTheme
+"io.github.rodrigo4sousa.pokedex" --> "navigation" : Navigation
+"io.github.rodrigo4sousa.pokedex" --> "theme" : PokedexTheme
 
 "navigation" --> "home" : HomeScreen
 "navigation" --> "pokedex" : PokedexScreen

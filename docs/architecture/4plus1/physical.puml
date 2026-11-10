@@ -15,7 +15,7 @@ title Physical view - current deployment
 left to right direction
 
 node "Android device\n(Android 12+, minSdk 31)" as device {
-    node "App sandbox\n(com.example.pokedex)" as sandbox {
+    node "App sandbox\n(io.github.rodrigo4sousa.pokedex)" as sandbox {
         artifact "Android App\n(APK)" as apk
         database "Local Database\n(pokedex.db, SQLite)" as db
     }
