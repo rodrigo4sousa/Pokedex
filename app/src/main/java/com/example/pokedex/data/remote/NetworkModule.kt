@@ -1,23 +1,32 @@
 package com.example.pokedex.data.remote
 
+import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import jakarta.inject.Singleton
+import okhttp3.Cache
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.File
 
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
     private const val BASE_URL = "https://pokeapi.co/api/v2/"
+    private const val HTTP_CACHE_SIZE_BYTES = 20L * 1024 * 1024
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder().build()
+    fun provideOkHttpClient(@ApplicationContext context: Context): OkHttpClient =
+        // PokeAPI asks clients to cache: OkHttp stores its responses on disk and honours its Cache-Control headers.
+        OkHttpClient.Builder()
+            .cache(Cache(File(context.cacheDir, "http"), HTTP_CACHE_SIZE_BYTES))
+            .build()
 
     @Provides
     @Singleton

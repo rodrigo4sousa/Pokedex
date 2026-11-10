@@ -70,7 +70,7 @@ The guide makes this layer optional, and the app uses it only where it pays off:
 
 Two repositories are the only entry points to data. `PokemonRepository` reads PokeAPI through Retrofit and the caught list through Room; `GuessGameRepository` saves the game's round and streak in Room. Both map DTOs and entities to domain models, so PokeAPI's JSON shape never reaches the UI.
 
-The app is **not offline-first**: the Pokémon list and details come from PokeAPI on every visit, and only what the user creates is stored. My Pokédex and the guess game's progress still work offline, because they come from Room.
+The app is **not offline-first**: the Pokémon list and details come from PokeAPI, and only what the user creates is stored. To go easy on PokeAPI, OkHttp keeps its responses in a 20 MB disk cache and honours the server's `Cache-Control` headers, so a repeated request is answered locally while the cached copy is fresh. My Pokédex and the guess game's progress still work offline, because they come from Room.
 
 ![Single source of truth: tapping the star on the detail page writes to Room through PokemonRepository, and Room's LiveData updates Home, My Pokédex and Detail](docs/images/architecture/single-source-of-truth.svg)
 

@@ -11,7 +11,7 @@ Last updated: 2026-10-22.
 | UI | Jetpack Compose (BOM 2026.09.00), Material 3, Navigation Compose, single Activity |
 | Architecture | MVVM: ViewModels expose `LiveData` (`MutableLiveData`, `MediatorLiveData`, `switchMap`), screens read it with `observeAsState`. No use-case layer. |
 | DI | Hilt 2.60 (`@HiltAndroidApp`, `@AndroidEntryPoint`, `@HiltViewModel`; modules `NetworkModule`, `DatabaseModule`, `ClockModule`) |
-| Network | Retrofit 3 + Gson (PokeAPI); Coil 3 + OkHttp (images); `MediaPlayer` streams cries (`.ogg`) |
+| Network | Retrofit 3 + Gson (PokeAPI), with a 20 MB OkHttp disk cache (`cacheDir/http`); Coil 3 + OkHttp (images); `MediaPlayer` streams cries (`.ogg`) |
 | Persistence | Room 2.8.4: `PokedexDatabase` v2 (`pokedex.db`), tables `caught_pokemon`, `daily_round` and `streak`; `MIGRATION_1_2` adds the last two; in-memory type membership cache in `PokemonRepository` |
 | Async | Coroutines (`viewModelScope`, `async`/`awaitAll`); Room reads return `LiveData`. No Flow, no WorkManager. |
 | Build | AGP 9.4.1, KSP (Hilt and Room code generation) |
@@ -24,7 +24,7 @@ App module `:app`, package `com.example.pokedex` (test-only module `:testing` de
 |---|---|
 | (root) | `PokedexApp` (Application, `@HiltAndroidApp`), `MainActivity` (`@AndroidEntryPoint`) |
 | `data` | `PokemonRepository` (returns domain models only), `GuessGameRepository` (the guess game's round and streak in Room) |
-| `data/remote` | `PokemonApi` (Retrofit interface), `NetworkModule` (Hilt: OkHttp, Retrofit, `PokemonApi`) |
+| `data/remote` | `PokemonApi` (Retrofit interface), `NetworkModule` (Hilt: OkHttp with disk cache, Retrofit, `PokemonApi`) |
 | `data/remote/dto` | PokeAPI response types: `PokemonDto` (+ `AbilitySlotDto`, `TypeSlotDto`, `StatDto`, `SpritesDto`, `OtherSpritesDto`, `ArtworkDto`, `CriesDto`), `PokemonPageDto`, `PokemonSpeciesDto` (+ `PokemonVarietyDto`), `EvolutionChainDto` (+ `ChainLinkDto`, `EvolutionDetailDto`), `TypeDto` (+ `TypePokemonDto`, `DamageRelationsDto`), `CountDto`, `NamedResourceDto`, `ApiResourceDto` |
 | `data/mapper` | `RemoteMappers` (DTO → domain, `idFromUrl`, `spriteUrlFor`, damage multipliers), `LocalMappers` (entity ↔ domain) |
 | `data/local` | `CaughtPokemonEntity`, `CaughtPokemonDao`, `DailyRoundEntity`, `StreakEntity`, `GuessGameDao`, `PokedexDatabase`, `Migrations` (`MIGRATION_1_2`), `DatabaseModule` (Hilt) |
